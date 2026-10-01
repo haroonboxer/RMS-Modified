@@ -1,0 +1,387 @@
+import React, { useState, useEffect } from 'react'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
+import { useTranslation } from 'react-i18next'
+import {
+  Modal,
+  Button,
+  Form,
+  Row,
+  Col,
+  Spinner,
+  FormControl,
+  FormGroup,
+  FormLabel,
+  FormSelect,
+} from 'react-bootstrap'
+import { DateObject } from 'react-multi-date-picker'
+import { FileUploader } from 'react-drag-drop-files'
+import { License } from '../__model'
+import { toast } from 'react-toastify'
+
+interface LicenseEditFormProps {
+  showModal: boolean
+  handleClose: () => void
+  handleSubmit: (values: License & { id: number }) => Promise<void>
+  initialData: License & { id: number }
+  loading: boolean
+  handleDrop: (files: File[]) => void
+  handleFileRemove: (index: number) => void
+  fileType: string[]
+  files: File[]
+  persian_fa: any
+  DatePicker: any
+  persian: any
+}
+
+const LicenseEditForm: React.FC<LicenseEditFormProps> = ({
+  showModal,
+  handleClose,
+  handleSubmit,
+  initialData,
+  loading,
+  handleDrop,
+  handleFileRemove,
+  fileType,
+  files,
+  persian_fa,
+  DatePicker,
+  persian,
+}) => {
+  const { t } = useTranslation()
+  const [startDate, setStartDate] = useState<DateObject | null>(null)
+  const [validityDate, setValidityDate] = useState<DateObject | null>(null)
+  const [hangingDate, setHangingDate] = useState<DateObject | null>(null)
+
+  const validationSchema = Yup.object().shape({
+    license_type: Yup.string().required(t('license.license_type_is_required')),
+    issue_date: Yup.string().required(t('license.issue_date_is_required')),
+    validity_date: Yup.string().required(t('license.validity_date_is_required')),
+    hanging_date: Yup.string().required(t('license.hanging_date_is_required')),
+    bank_account_number: Yup.string().required(t('license.bank_account_number_is_required')),
+    drone_model: Yup.string().required(t('license.drone_model_is_required')),
+    drone_sn: Yup.string().required(t('license.drone_sn_is_required')),
+    fee: Yup.number()
+      .required(t('license.fee_is_required'))
+      .min(0, t('license.fee_must_be_positive')),
+  })
+
+  const formik = useFormik({
+    initialValues: initialData,
+    validationSchema,
+    onSubmit: async (values) => {
+      await handleSubmit(values)
+    },
+    enableReinitialize: true,
+  })
+
+  const handleDateChange = (date: DateObject | DateObject[] | null, field: string) => {
+    if (date && !Array.isArray(date)) {
+      const formattedDate = `${date.year}-${date.month.number
+        .toString()
+        .padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`
+      formik.setFieldValue(field, formattedDate)
+      if (field === 'issue_date') setStartDate(date)
+      if (field === 'validity_date') setValidityDate(date)
+      if (field === 'hanging_date') setHangingDate(date)
+    } else {
+      formik.setFieldValue(field, '')
+      if (field === 'issue_date') setStartDate(null)
+      if (field === 'validity_date') setValidityDate(null)
+      if (field === 'hanging_date') setHangingDate(null)
+    }
+  }
+
+  const handleFileChange = (newFiles: FileList | null) => {
+    if (newFiles) {
+      const filesArray = Array.from(newFiles)
+      handleDrop(filesArray)
+    }
+  }
+
+  const RequiredLabel = ({ label }: { label: string }) => (
+    <FormLabel>
+      {label} <span className='text-danger'>*</span>
+    </FormLabel>
+  )
+
+  useEffect(() => {
+    if (showModal && initialData.issue_date) {
+      const [y, m, d] = initialData.issue_date.split('-').map(Number)
+      setStartDate(new DateObject({ year: y, month: m, day: d, calendar: persian }))
+    }
+    if (showModal && initialData.validity_date) {
+      const [y, m, d] = initialData.validity_date.split('-').map(Number)
+      setValidityDate(new DateObject({ year: y, month: m, day: d, calendar: persian }))
+    }
+    if (showModal && initialData.hanging_date) {
+      const [y, m, d] = initialData.hanging_date.split('-').map(Number)
+      setHangingDate(new DateObject({ year: y, month: m, day: d, calendar: persian }))
+    }
+  }, [showModal, initialData, persian])
+
+  useEffect(() => {
+    if (!showModal) {
+      formik.resetForm()
+      setStartDate(null)
+      setValidityDate(null)
+      setHangingDate(null)
+    }
+  }, [showModal])
+
+  useEffect(() => {
+    const { license_type } = formik.values
+    if (license_type === 'new') formik.setFieldValue('fee', 20000)
+    else if (license_type === 'extend') formik.setFieldValue('fee', 20000)
+    else if (license_type === 'renew') formik.setFieldValue('fee', 0)
+  }, [formik.values.license_type])
+
+  return (
+    <Modal show={showModal} onHide={handleClose} size='lg' backdrop='static'>
+      <Modal.Header closeButton>
+        <Modal.Title>{t('license.license_edit')}</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={formik.handleSubmit}>
+        <Modal.Body>
+          {/* ================================================================== */}
+          <Row>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.droneModel')} />
+                <FormControl
+                  style={{ textAlign: 'right' }}
+                  type='text'
+                  name='drone_model'
+                  value={formik.values.drone_model || ''}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.drone_model && formik.errors.drone_model)
+                  }
+                  placeholder={t('license.droneModel')}
+                />
+                {formik.touched.drone_model && formik.errors.drone_model && (
+                  <div className='text-danger' style={{ fontSize: '0.875em' }}>
+                    {formik.errors.drone_model}
+                  </div>
+                )}
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.droneSN')} />
+                <FormControl
+                  style={{ textAlign: 'right' }}
+                  type='text'
+                  name='drone_sn'
+                  value={formik.values.drone_sn || ''}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.drone_sn && formik.errors.drone_sn)
+                  }
+                  placeholder={t('license.droneSN')}
+                />
+                {formik.touched.drone_sn && formik.errors.drone_sn && (
+                  <div className='text-danger' style={{ fontSize: '0.875em' }}>
+                    {formik.errors.drone_sn}
+                  </div>
+                )}
+              </FormGroup>
+            </Col>
+          </Row>
+          {/* ================================================================== */}
+          <Row>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.license_type')} />
+                <FormSelect
+                  name='license_type'
+                  value={formik.values.license_type}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!(formik.touched.license_type && formik.errors.license_type)}
+                >
+                  <option value=''>{t('license.select_license_type')}</option>
+                  <option value='new'>{t('license.new')}</option>
+                  <option value='extend'>{t('license.extend')}</option>
+                  <option value='renew'>{t('license.renew')}</option>
+                </FormSelect>
+                {formik.touched.license_type && formik.errors.license_type && (
+                  <FormControl.Feedback type='invalid'>
+                    {formik.errors.license_type}
+                  </FormControl.Feedback>
+                )}
+              </FormGroup>
+            </Col>
+
+            <Col md={6}>
+              <FormGroup className='mb-3'
+              >
+                <RequiredLabel label={t('license.fee_amount')} />
+                <FormControl
+                  style={{ textAlign: 'center' }}
+                  type='number'
+                  name='fee'
+                  value={formik.values.fee}
+                  isInvalid={!!(formik.touched.fee && formik.errors.fee)}
+                  readOnly
+                />
+                {formik.touched.fee && formik.errors.fee && (
+                  <FormControl.Feedback type='invalid'>{formik.errors.fee}</FormControl.Feedback>
+                )}
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.hangingDate')} />
+                <DatePicker
+                  calendar={persian}
+                  locale={persian_fa}
+                  containerStyle={{ width: '100%' }}
+                  value={hangingDate}
+                  placeholder={t('license.hangingDate')}
+                  style={{ width: '100%', height: '38px', fontSize: '1rem' }}
+                  onChange={(date: any) => handleDateChange(date, 'hanging_date')}
+                  editable
+                  format='YYYY-MM-DD'
+                />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.bankAccountNumber')} />
+                <FormControl
+                  style={{ textAlign: 'right' }}
+                  type='text'
+                  name='bank_account_number'
+                  value={formik.values.bank_account_number || ''}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.bank_account_number && formik.errors.bank_account_number)
+                  }
+                  placeholder={t('license.bankAccountNumber')}
+                />
+                {formik.touched.bank_account_number && formik.errors.bank_account_number && (
+                  <div className='text-danger' style={{ fontSize: '0.875em' }}>
+                    {formik.errors.bank_account_number}
+                  </div>
+                )}
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.issue_date')} />
+                <DatePicker
+                  calendar={persian}
+                  locale={persian_fa}
+                  containerStyle={{ width: '100%' }}
+                  value={startDate}
+                  placeholder={t('license.select_issue_date')}
+                  style={{ width: '100%', height: '38px', fontSize: '1rem' }}
+                  onChange={(date: any) => handleDateChange(date, 'issue_date')}
+                  editable
+                  format='YYYY-MM-DD'
+                />
+              </FormGroup>
+            </Col>
+
+            <Col md={6}>
+              <FormGroup className='mb-3'>
+                <RequiredLabel label={t('license.validity_date')} />
+                <DatePicker
+                  calendar={persian}
+                  locale={persian_fa}
+                  containerStyle={{ width: '100%' }}
+                  value={validityDate}
+                  placeholder={t('license.select_validity_date')}
+                  style={{ width: '100%', height: '38px', fontSize: '1rem' }}
+                  onChange={(date: any) => handleDateChange(date, 'validity_date')}
+                  editable
+                  format='YYYY-MM-DD'
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={12}>
+              <FormGroup className='mb-3'>
+                <FormLabel>{t('global.attachments')}</FormLabel>
+                <FileUploader
+                  handleChange={handleFileChange}
+                  name='attachments'
+                  types={fileType}
+                  multiple
+                  maxSize={30}
+                  label={t('file_upload.drag_drop_or_click')}
+                  onTypeError={() => toast.error(t('error.invalid_file_type'))}
+                  onSizeError={() => toast.error(t('error.file_too_large'))}
+                />
+                {files.length > 0 && (
+                  <div className='mt-3'>
+                    <h6>
+                      {t('file_upload.selected_files')} ({files.length})
+                    </h6>
+                    <div className='list-group'>
+                      {files.map((file, index) => (
+                        <div
+                          key={index}
+                          className='list-group-item d-flex justify-content-between align-items-center py-2 px-3'
+                        >
+                          <div className='d-flex align-items-center'>
+                            <span className='badge bg-secondary me-2'>{index + 1}</span>
+                            <span className='text-truncate' style={{ maxWidth: '300px' }}>
+                              {file.name}
+                            </span>
+                            <small className='text-muted ms-2'>
+                              {(file.size / 1024).toFixed(2)} KB
+                            </small>
+                          </div>
+                          <button
+                            className='btn btn-link p-0 text-muted'
+                            onClick={() => handleFileRemove(index)}
+                            title={t('global.remove')}
+                            style={{ background: 'transparent', border: 'none', color: 'red' }}
+                          >
+                            <i className='fa fa-times text-danger'></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <small className='text-muted d-block mt-2'>
+                  {t('file_upload.supported_formats')}: {fileType.join(', ')}.{' '}
+                  {t('file_upload.max_size')}
+                </small>
+              </FormGroup>
+            </Col>
+          </Row>
+        </Modal.Body>
+        <Modal.Footer className='d-flex justify-content-between'>
+          <Button variant='primary' type='submit' disabled={loading}>
+            {loading ? (
+              <>
+                <Spinner as='span' size='sm' animation='border' role='status' aria-hidden='true' />{' '}
+                {t('global.update')}
+              </>
+            ) : (
+              t('global.update')
+            )}
+          </Button>
+          <Button variant='danger' onClick={handleClose} disabled={loading}>
+            {t('global.close')}
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  )
+}
+
+export default LicenseEditForm
