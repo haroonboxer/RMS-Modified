@@ -26,7 +26,7 @@ class CardPrintController extends Controller
         $this->middleware('permission:workshop-print-card')->only('generateIDCard');
         $this->middleware('permission:workshop-print-card-view')->only('view');
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
+            $this->user = Auth::guard('sso')->user();
             return $next($request);
         });
     }

@@ -3,8 +3,8 @@
 use App\Http\Controllers\GpsCompany\GpsCompanyAgencyController;
 use Illuminate\Support\Facades\Route;
 
-//Assistant Routes
-Route::middleware('auth:sanctum')->controller(GpsCompanyAgencyController::class)->prefix('gpsCompanyAgency')->group(function () {
+//Assistant Routesauth:sanctum
+Route::middleware('auth:sso')->controller(GpsCompanyAgencyController::class)->prefix('gpsCompanyAgency')->group(function () {
     Route::get('index', 'index');
     Route::get('allGpsCompanyAgency/{id?}', 'allGpsCompanyAgency');
     Route::get('createButton', 'createButton');

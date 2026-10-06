@@ -34,11 +34,20 @@ class AuthController extends Controller
              | Validate SSO Token
              |--------------------------------------------------------------------------
              */
+            $parts = explode('.', $token);
 
+            $header = json_decode(
+                base64_decode(strtr($parts[0], '-_', '+/')),
+                true
+            );
+
+            logger()->info('JWT HEADER', [
+                'header' => $header
+            ]);
             $decoded = JWT::decode(
                 $token,
                 new Key(
-                    'tMUptNgj0lFMwPJHcPjY0sM+2s+YFoFSZbNN6a7jrcI=',
+                    'Laravel-React-Project-Secrute-Key-2027',
                     'HS256'
                 )
             );

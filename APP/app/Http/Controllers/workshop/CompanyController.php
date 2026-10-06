@@ -18,15 +18,15 @@ class CompanyController extends Controller
     protected $user;
     public function __construct()
     {
-        $this->middleware('permission:workshop-company-list')->only('index');
-        $this->middleware('permission:workshop-company-create')->only('store');
-        $this->middleware('permission:workshop-company-view')->only('view');
-        $this->middleware('permission:workshop-company-edit')->only('update');
-        $this->middleware('permission:workshop-company-status')->only('changeStatus');
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
-            return $next($request);
-        });
+        // $this->middleware('permission:workshop-company-list')->only('index');
+        // $this->middleware('permission:workshop-company-create')->only('store');
+        // $this->middleware('permission:workshop-company-view')->only('view');
+        // $this->middleware('permission:workshop-company-edit')->only('update');
+        // $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        // $this->middleware(function ($request, $next) {
+        //     $this->user = Auth::guard('web')->user();
+        //     return $next($request);
+        // });
     }
 
     protected array $sortFields = [
@@ -44,36 +44,36 @@ class CompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-         $query = workshopCompany::join('users', 'users.id', 'workshop_companies.created_by')
-        ->select(
-            'workshop_companies.id',
-            'workshop_companies.company_pa',
-            'workshop_companies.company_dr',
-            'workshop_companies.company_en',
-            'workshop_companies.address',
-            'workshop_companies.icon',
-            'workshop_companies.reason_dismissed',
-            'workshop_companies.created_at',
-            'workshop_companies.tin',
-            'users.name as ownerName',
-        )
-        ->orderBy($sortField, $sortOrder)
-         ->when($request->status == 'rejected', function ($query) {
-            return $query->whereHas('workshopLicenses', function ($query) {
-                $query->where('status', 4);
-            })->distinct('workshop_companies.id'); // Ensure unique results within this condition
-        })
-       
-        ->when($request->company_dr != '', function ($query) use ($request) {
-            return $query->where('workshop_companies.company_dr', 'LIKE', '%' . trim($request->company_dr) . '%');
-        })
-        ->when($request->company_en != '', function ($query) use ($request) {
-            return $query->where('workshop_companies.company_en', 'LIKE', '%' . trim($request->company_en) . '%');
-        });
+        $query = workshopCompany::join('users', 'users.id', 'workshop_companies.created_by')
+            ->select(
+                'workshop_companies.id',
+                'workshop_companies.company_pa',
+                'workshop_companies.company_dr',
+                'workshop_companies.company_en',
+                'workshop_companies.address',
+                'workshop_companies.icon',
+                'workshop_companies.reason_dismissed',
+                'workshop_companies.created_at',
+                'workshop_companies.tin',
+                'users.name as ownerName',
+            )
+            ->orderBy($sortField, $sortOrder)
+            ->when($request->status == 'rejected', function ($query) {
+                return $query->whereHas('workshopLicenses', function ($query) {
+                    $query->where('status', 4);
+                })->distinct('workshop_companies.id'); // Ensure unique results within this condition
+            })
+
+            ->when($request->company_dr != '', function ($query) use ($request) {
+                return $query->where('workshop_companies.company_dr', 'LIKE', '%' . trim($request->company_dr) . '%');
+            })
+            ->when($request->company_en != '', function ($query) use ($request) {
+                return $query->where('workshop_companies.company_en', 'LIKE', '%' . trim($request->company_en) . '%');
+            });
 
         $perPage = $request->input('per_page') ?? self::PER_PAGE;
         $records = $query->paginate((int) $perPage);
-        
+
         return CompanyResource::collection($records);
     }
 

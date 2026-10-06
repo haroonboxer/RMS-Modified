@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 | Here is where you can register Department, Role, Permissions routes for your application. These
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "Department, Role, Permissions" middleware group. Now create something great!
-|
+|auth:sanctum
 */
-Route::middleware('auth:sanctum')->controller(DepartmentController::class)->prefix('department')->group(function () {
+Route::middleware('auth:sso')->controller(DepartmentController::class)->prefix('department')->group(function () {
     Route::get('index', 'index');
     Route::get('create', 'create');
     Route::post('store', 'store');
@@ -27,7 +27,8 @@ Route::middleware('auth:sanctum')->controller(DepartmentController::class)->pref
 
 });
 
-Route::middleware('auth:sanctum')->controller(RoleController::class)->prefix('role')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(RoleController::class)->prefix('role')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::get('edit/{id}', 'edit');
@@ -35,12 +36,12 @@ Route::middleware('auth:sanctum')->controller(RoleController::class)->prefix('ro
     Route::get('get-systems', 'getSystem');
     Route::post('get-roles-by-system-id', 'getRolesBySystemId');
 });
-
-Route::middleware('auth:sanctum')->controller(PermissionController::class)->prefix('permission')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(PermissionController::class)->prefix('permission')->group(function () {
     Route::get('get-permission-by-system-id/{id}', 'getPermissionBySystemId');
 });
-
-Route::middleware('auth:sanctum')->controller(AttachmentController::class)->prefix('attachment')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(AttachmentController::class)->prefix('attachment')->group(function () {
     Route::get('index', 'index');
     Route::get('download/{id}', 'download');
 });

@@ -3,8 +3,8 @@
 use App\Http\Controllers\GpsCompany\BossController;
 use Illuminate\Support\Facades\Route;
 
-//Workshop Boss Routes
-Route::middleware('auth:sanctum')->controller(BossController::class)->prefix('gpsCompanyBoss')->group(function () {
+//Workshop Boss Routesauth:sanctum
+Route::middleware('auth:sso')->controller(BossController::class)->prefix('gpsCompanyBoss')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

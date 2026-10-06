@@ -3,8 +3,8 @@
 use App\Http\Controllers\GpsCompany\CardPrintController;
 use Illuminate\Support\Facades\Route;
 
-//Printed Cards Routes
-Route::middleware('auth:sanctum')->controller(CardPrintController::class)->prefix('gpsPrintedCard')->group(function () {
+//Printed Cards Routesauth:sanctum
+Route::middleware('auth:sso')->controller(CardPrintController::class)->prefix('gpsPrintedCard')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

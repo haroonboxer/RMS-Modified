@@ -21,7 +21,7 @@ class BossController extends Controller
         $this->middleware('permission:workshop-boss-view')->only('view');
         $this->middleware('permission:workshop-boss-edit')->only('edit');
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
+            $this->user = Auth::guard('sso')->user();
             return $next($request);
         });
     }

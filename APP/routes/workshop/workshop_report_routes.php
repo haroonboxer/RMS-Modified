@@ -3,8 +3,8 @@
 use App\Http\Controllers\workshop\ReportController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::middleware('auth:sanctum')->controller(ReportController::class)->prefix('workshopReport')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(ReportController::class)->prefix('workshopReport')->group(function () {
     Route::get('index', 'index');
     Route::get('listCompany', 'listCompany');
     Route::get('monthlyCompanyStats', 'monthlyCompanyStats');

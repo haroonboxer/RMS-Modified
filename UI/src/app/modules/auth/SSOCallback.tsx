@@ -35,7 +35,7 @@ const SSOCallback = () => {
 
                 // Decode JWT
                 const decoded = jwtDecode<JwtUserModel>(token);
-
+                console.log(decoded);
                  
  
                 // Make sure the JWT has an expiration

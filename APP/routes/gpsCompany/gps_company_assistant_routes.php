@@ -3,8 +3,8 @@
 use App\Http\Controllers\GpsCompany\AssistantController;
 use Illuminate\Support\Facades\Route;
 
-//Assistant Routes
-Route::middleware('auth:sanctum')->controller(AssistantController::class)->prefix('gpsCompanyAssistant')->group(function () {
+//Assistant Routesauth:sanctum
+Route::middleware('auth:sso')->controller(AssistantController::class)->prefix('gpsCompanyAssistant')->group(function () {
     Route::get('index', 'index');
     Route::get('createButton', 'createButton');
     Route::post('store', 'store');

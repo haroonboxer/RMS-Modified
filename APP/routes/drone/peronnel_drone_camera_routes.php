@@ -3,8 +3,8 @@
 use App\Http\Controllers\DroneCamera\PersonnelDroneCameraController;
 use Illuminate\Support\Facades\Route;
 
-// Personnel Drone Routes
-Route::middleware('auth:sanctum')->controller(PersonnelDroneCameraController::class)->prefix('PersonnelDroneCamera')->group(function () {
+// Personnel Drone Routes  auth:sanctum
+Route::middleware('auth:sso')->controller(PersonnelDroneCameraController::class)->prefix('PersonnelDroneCamera')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

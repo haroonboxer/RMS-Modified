@@ -3,8 +3,8 @@
 use App\Http\Controllers\rms\LicenseController;
 use Illuminate\Support\Facades\Route;
 
-//Licences Routes
-Route::middleware('auth:sanctum')->controller(LicenseController::class)->prefix('license')->group(function () {
+//Licences Routesauth:sanctum
+Route::middleware('auth:sso')->controller(LicenseController::class)->prefix('license')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

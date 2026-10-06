@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user-management-sys', function () {
     return view('auth.home');
 })->name('user-management-sys')->middleware('permission:admin-view');
-
-Route::middleware('auth:sanctum')->controller(UserController::class)->prefix('user')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(UserController::class)->prefix('user')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::get('edit/{id}', 'edit');

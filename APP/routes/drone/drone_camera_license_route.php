@@ -3,8 +3,8 @@
 use App\Http\Controllers\DroneCamera\DroneCameraLicenseController;
 use Illuminate\Support\Facades\Route;
 
-//Licences Routes
-Route::middleware('auth:sanctum')->controller(DroneCameraLicenseController::class)->prefix('DroneCameraLicense')->group(function () {
+//Licences Routes  auth:sanctum
+Route::middleware('auth:sso')->controller(DroneCameraLicenseController::class)->prefix('DroneCameraLicense')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

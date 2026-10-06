@@ -15,16 +15,16 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::middleware('auth:sanctum')->controller(AuthController::class)->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->controller(AuthController::class)->group(function () {
     Route::post('verify_user', 'verify_user');
 });
 
 // Route::post('login', [AuthController::class, 'login']);
 // web.php or api.php (make sure this is accessible via GET)
 Route::get('printed_card/view/{id}', [PrintedCardController::class, 'generateIDCard']);
-
-Route::middleware('auth:sanctum')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->group(function () {
     require('user_routes.php');
     require('administration.php');
 

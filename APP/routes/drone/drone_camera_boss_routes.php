@@ -3,8 +3,8 @@
 use App\Http\Controllers\DroneCamera\DroneCameraBossController;
 use Illuminate\Support\Facades\Route;
 
-//Workshop Boss Routes
-Route::middleware('auth:sanctum')->controller(DroneCameraBossController::class)->prefix('DroneCameraBoss')->group(function () {
+//Workshop Boss Routes  auth:sanctum
+Route::middleware('auth:sso')->controller(DroneCameraBossController::class)->prefix('DroneCameraBoss')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

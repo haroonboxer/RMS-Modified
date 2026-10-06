@@ -16,20 +16,22 @@ class AssistantController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:workshop-assistant-list')->only('index');
-        $this->middleware('permission:workshop-assistant-create')->only('store');
-        $this->middleware('permission:workshop-assistant-view')->only('view');
-        $this->middleware('permission:workshop-assistant-edit')->only('update');
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
-            return $next($request);
-        });
+        // $this->middleware('permission:workshop-assistant-list')->only('index');
+        // $this->middleware('permission:workshop-assistant-create')->only('store');
+        // $this->middleware('permission:workshop-assistant-view')->only('view');
+        // $this->middleware('permission:workshop-assistant-edit')->only('update');
+        // $this->middleware(function ($request, $next) {
+        //     $this->user = Auth::guard('sso')->user();
+        //     return $next($request);
+        // });
     }
 
     protected array $sortFields = ['workshop_assistants.id', 'workshop_assistants.name_dr', 'workshop_assistants.email', 'workshop_assistants.status', 'workshop_assistants.created_at'];
 
     protected function index(Request $request)
     {
+
+
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);

@@ -3,8 +3,8 @@
 use App\Http\Controllers\DroneCamera\PersonnelDroneCameraCardsApproveController;
 use Illuminate\Support\Facades\Route;
 
-//Printed Cards Routes
-Route::middleware('auth:sanctum')->controller(PersonnelDroneCameraCardsApproveController::class)->prefix('personnelDroneCameraCardsApprove')->group(function () {
+//Printed Cards Routes  auth:sanctum
+Route::middleware('auth:sso')->controller(PersonnelDroneCameraCardsApproveController::class)->prefix('personnelDroneCameraCardsApprove')->group(function () {
     Route::get('index', 'index');
     Route::post('store', 'store');
     Route::post('view/{id}', 'view');

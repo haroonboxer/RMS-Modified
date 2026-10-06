@@ -27,7 +27,8 @@ class JwtGuard implements Guard
             $decoded = JWT::decode(
                 $token,
                 new Key(
-                    env('JWT_SECRET'),
+                    "Laravel-React-Project-Secrute-Key-2027",
+
                     'HS256'
                 )
             );

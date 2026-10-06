@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\rms\WeaponsController;
 use Illuminate\Support\Facades\Route;
-
-Route::middleware('auth:sanctum')->group(function () {
+// auth:sanctum
+Route::middleware('auth:sso')->group(function () {
     // Weapon Routes
     Route::prefix('weapon')->controller(WeaponsController::class)->group(function () {
         Route::get('index', 'index');
