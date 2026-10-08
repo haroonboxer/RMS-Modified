@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+
+    public function up(): void
+    {
+        Schema::table('drone_camera_bosses', function (Blueprint $table) {
+            $table->dropforeign("created_by");
+            $table->dropforeign("created_department");
+            $table->dropforeign("created_location");
+        });
+        Schema::table("drone_camera_bosses", function (Blueprint $table) {
+            $table->string("created_by")->change();
+            $table->string("created_department")->change();
+            $table->string("created_location")->change();
+            $table->string("created_by_name")->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('drone_new_migration_bosses');
+    }
+};

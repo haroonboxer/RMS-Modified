@@ -201,7 +201,7 @@ const DataTable: React.FC<any> = ({headers, columns, onRecordsChange}) => {
                             borderRadius: '10px',
                             objectFit: 'contain',
                           }}
-                          onError={(e) => (e.currentTarget.src = '/default-icon.png')}
+                          //  onError={(e) => (e.currentTarget.src = '/default-icon.png')}
                         />
                       </td>
                       <td style={{ textAlign: 'center', width: '10%' }}>
