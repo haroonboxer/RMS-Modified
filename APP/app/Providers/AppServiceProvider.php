@@ -25,10 +25,16 @@ class AppServiceProvider extends ServiceProvider
             database_path('migrations/drone'),
             database_path('migrations/k9'),
             database_path('migrations/gpsCompany'),
+            //new migration Path
+            database_path('migrations/rms/rmsModified'),
+            database_path('migrations/workshop/workshopNewMigration'),
+            database_path('migrations/drone/DroppingTheRelationshipMigration'),
+            database_path('migrations/k9/k9_New_Migration'),
+            database_path('migrations/gpsCompany/gpsCompanyNewMigration'),
             // Add more paths as needed
         ]);
-            Auth::extend('sso', function ($app, $name, array $config) {
-           // logger()->info('Creating JwtGuard');
+        Auth::extend('sso', function ($app, $name, array $config) {
+            // logger()->info('Creating JwtGuard');
             return new JwtGuard();
         });
     }

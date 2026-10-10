@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bosses', function (Blueprint $table) {
-            $table->dropForeign('created_by')->references("id")->on("users");
-            $table->dropForeign('created_department')->references('id')->on('departments');
-            $table->dropForeign('created_location')->references("id")->on("provinces");
+            $table->dropForeign(['created_by'])->references("id")->on("users");
+            $table->dropForeign(['created_department'])->references('id')->on('departments');
+            $table->dropForeign(['created_location'])->references("id")->on("provinces");
         });
 
         Schema::table('bosses', function (Blueprint $table) {

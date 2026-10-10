@@ -13,9 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('drone_camera_bosses', function (Blueprint $table) {
-            $table->dropforeign("created_by");
-            $table->dropforeign("created_department");
-            $table->dropforeign("created_location");
+            $table->dropforeign(["created_by"]);
+            $table->dropforeign(["created_department"]);
+            $table->dropforeign(["created_location"]);
         });
         Schema::table("drone_camera_bosses", function (Blueprint $table) {
             $table->string("created_by")->change();

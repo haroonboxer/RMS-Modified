@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('workshop_assistants', function (Blueprint $table) {
-            $table->dropForeign('created_by');
-            $table->dropForeign('created_department');
-            $table->dropForeign('created_location');
+            $table->dropForeign(['created_by']);
+            $table->dropForeign(['created_department']);
+            $table->dropForeign(['created_location']);
         });
 
         Schema::table('workshop_assistants', function (Blueprint $table) {

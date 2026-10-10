@@ -25,7 +25,8 @@ class DatabaseSeeder extends Seeder
             DistrictsSeeder::class,
             UserSeeder::class,
             departmentSeeder::class,
-            
+
+
         ]);
     }
 }

@@ -12,22 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('k9_licenses', function (Blueprint $table) {
-            $table->dropForeign('created_by')->references("id")->on("users");
-            $table->dropForeign('updated_by')->nullable();
-            $table->dropForeign('created_department')->references('id')->on('departments');
-            $table->dropForeign('created_location')->references("id")->on("provinces");
+            $table->dropForeign(['created_by']);
+            $table->dropForeign(['created_department']);
+            $table->dropForeign(['created_location']);
         });
 
-          Schema::table('k9_licenses', function (Blueprint $table) {
-            $table->string('created_by');
-            $table->string('updated_by')->nullable();
-            $table->string('created_department');
-            $table->string('created_location');
+        Schema::table('k9_licenses', function (Blueprint $table) {
+            $table->string('created_by')->change();
+            $table->string('updated_by')->nullable()->change();
+            $table->string('created_department')->change();
+            $table->string('created_location')->change();
 
 
             $table->string('created_by')->nullable();
-          
-
         });
     }
 
