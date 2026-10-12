@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -6,17 +7,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // Step 1: Remove existing foreign key constraints.
         Schema::table('contracts', function (Blueprint $table) {
-            $table->foreignId(['created_by']);
-            $table->foreignId(['created_department']);
-            $table->foreignId(['created_location']);
+            $table->dropForeign(['created_by']);
+            $table->dropForeign(['created_department']);
+            $table->dropForeign(['created_location']);
         });
 
+        // Step 2: Convert existing columns to strings.
         Schema::table('contracts', function (Blueprint $table) {
             $table->string('created_by')->change();
             $table->string('created_department')->change();
@@ -26,11 +26,13 @@ return new class extends Migration
         });
     }
 
+
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('_new__migration_contract');
+        Schema::dropIfExists('contracts');
     }
 };

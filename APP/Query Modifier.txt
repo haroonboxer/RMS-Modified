@@ -1,0 +1,60 @@
+
+			DO $$
+		DECLARE
+		    tbl TEXT;
+		BEGIN
+		
+		    FOREACH tbl IN ARRAY ARRAY[
+		        'assistants',
+				'bosses',
+				'companies',
+				'contracts',
+			 	'drone_camera_assistants',
+				'drone_camera_bosses',
+				'drone_camera_licenses',
+				'employees',
+				'gps_companies',
+				'gps_companies_bosses',
+				'gps_companies_asstants',
+				'gps_companies_licenses',
+				'guns',
+				'k9_assistants',
+				'k9_bosses',
+				'k9_assistants',
+				'k9_companies',
+				'k9_licenses',
+				'license',
+				'',
+				'',
+				'',
+				'',
+				'',
+				'',
+				'',
+				'',
+				'',
+				'',
+				
+				
+		    ]
+		    LOOP
+		
+		        EXECUTE format(
+		            'UPDATE %I
+		             SET created_by = %L,
+		                 created_by_name = %L,
+		                 created_department = %L,
+						 created_location = %l,
+		             WHERE %I.created_by = %L',
+		            tbl,
+		            '62e30c2e-8e2c-4f9a-96cc-5bf37368f8c8',
+		            'احمد منصور ایشان زاده',
+		            14,
+					1,
+		            tbl,
+		            '3'
+		        );
+		
+		    END LOOP;
+		
+		END $$;

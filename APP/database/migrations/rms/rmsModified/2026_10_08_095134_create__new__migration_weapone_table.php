@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('created_department')->change();
             $table->string('created_location')->change();
 
-            $table->string('created_by_name')->change();
+            $table->string('created_by_name')->nullable();
         });
     }
 

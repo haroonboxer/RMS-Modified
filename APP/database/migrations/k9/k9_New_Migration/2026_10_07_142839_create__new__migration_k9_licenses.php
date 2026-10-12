@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('created_location')->change();
 
 
-            $table->string('created_by')->nullable();
+            $table->string('created_by_name')->nullable();
         });
     }
 

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('created_department')->change();
             $table->string('created_location')->change();
 
-            $table->dropForeign('created_by_name')->nullable();
+            $table->string('created_by_name')->nullable();
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_new__migration_guns');
+        Schema::dropIfExists('guns');
     }
 };
