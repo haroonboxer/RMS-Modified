@@ -40,18 +40,19 @@ class WorkshopLicenseController extends Controller
 
     public function index(Request $request)
     {
+
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-
-        $query = WorkshopLicense::join('users', 'users.id', 'workshop_licenses.created_by')
-            ->join('workshop_companies', 'workshop_companies.id', 'workshop_licenses.company_id')
-            ->join('departments', 'departments.id', 'workshop_licenses.created_department')
-            ->join('provinces', 'provinces.id', 'workshop_licenses.created_location')
+        // join('users', 'users.id', 'workshop_licenses.created_by')
+        //             ->
+        $query = WorkshopLicense::join('workshop_companies', 'workshop_companies.id', 'workshop_licenses.company_id')
+            // ->join('departments', 'departments.id', 'workshop_licenses.created_department')
+            // ->join('provinces', 'provinces.id', 'workshop_licenses.created_location')
             ->select(
                 'workshop_licenses.*',
-                'users.name as ownerName',
+                'workshop_licenses.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -138,6 +139,7 @@ class WorkshopLicenseController extends Controller
 
     protected function view($id)
     {
+
         $license = WorkshopLicense::join('users', 'users.id', '=', 'workshop_licenses.created_by')
             ->join('provinces', 'provinces.id', '=', 'workshop_licenses.created_location')
             ->join('departments', 'departments.id', '=', 'workshop_licenses.created_department')

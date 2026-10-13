@@ -16,14 +16,14 @@ class AssistantController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('permission:workshop-assistant-list')->only('index');
-        // $this->middleware('permission:workshop-assistant-create')->only('store');
-        // $this->middleware('permission:workshop-assistant-view')->only('view');
-        // $this->middleware('permission:workshop-assistant-edit')->only('update');
-        // $this->middleware(function ($request, $next) {
-        //     $this->user = Auth::guard('sso')->user();
-        //     return $next($request);
-        // });
+        $this->middleware('permission:workshop-assistant-list')->only('index');
+        $this->middleware('permission:workshop-assistant-create')->only('store');
+        $this->middleware('permission:workshop-assistant-view')->only('view');
+        $this->middleware('permission:workshop-assistant-edit')->only('update');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('sso')->user();
+            return $next($request);
+        });
     }
 
     protected array $sortFields = ['workshop_assistants.id', 'workshop_assistants.name_dr', 'workshop_assistants.email', 'workshop_assistants.status', 'workshop_assistants.created_at'];
@@ -36,31 +36,31 @@ class AssistantController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
-
-        $query = WorkshopAssistant::join('users', 'users.id', '=', 'workshop_assistants.created_by')
-            ->select(
-                'workshop_assistants.id',
-                'workshop_assistants.name_dr',
-                'workshop_assistants.name_en',
-                'workshop_assistants.last_name_dr',
-                'workshop_assistants.last_name_en',
-                'workshop_assistants.f_name_da',
-                'workshop_assistants.email',
-                'workshop_assistants.phone',
-                'workshop_assistants.passport_no',
-                'workshop_assistants.country',
-                'workshop_assistants.type_residence_info',
-                'workshop_assistants.photo',
-                'workshop_assistants.main_province',
-                'workshop_assistants.main_district',
-                'workshop_assistants.main_village',
-                'workshop_assistants.current_province',
-                'workshop_assistants.current_district',
-                'workshop_assistants.current_village',
-                'workshop_assistants.status',
-                'workshop_assistants.created_at',
-                'users.name as ownerName',
-            )
+        // join('users', 'users.id', '=', 'workshop_assistants.created_by')
+        //             ->
+        $query = WorkshopAssistant::select(
+            'workshop_assistants.id',
+            'workshop_assistants.name_dr',
+            'workshop_assistants.name_en',
+            'workshop_assistants.last_name_dr',
+            'workshop_assistants.last_name_en',
+            'workshop_assistants.f_name_da',
+            'workshop_assistants.email',
+            'workshop_assistants.phone',
+            'workshop_assistants.passport_no',
+            'workshop_assistants.country',
+            'workshop_assistants.type_residence_info',
+            'workshop_assistants.photo',
+            'workshop_assistants.main_province',
+            'workshop_assistants.main_district',
+            'workshop_assistants.main_village',
+            'workshop_assistants.current_province',
+            'workshop_assistants.current_district',
+            'workshop_assistants.current_village',
+            'workshop_assistants.status',
+            'workshop_assistants.created_at',
+            'workshop_assistants.created_by_name as ownerName',
+        )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
                 return $query->where('workshop_assistants.company_id', $companyId);

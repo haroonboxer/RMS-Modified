@@ -7,6 +7,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import companyService from './workshopCompanyService'
+import { createResponseContext } from '_metronic/helpers'
 
 type CompanyState = {
   companyIndex: any
@@ -25,7 +26,9 @@ const initialState: CompanyState = {
 // Get company from server
 export const getCompany = createAsyncThunk('api/workshopCompany/index', async (params: any, thunkAPI) => {
   try {
-    return await companyService.getCompany(params)
+    var data =  await companyService.getCompany(params);
+    console.log(data);
+    return data;
   } catch (error: any) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||

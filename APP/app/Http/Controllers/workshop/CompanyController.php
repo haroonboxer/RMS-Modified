@@ -18,15 +18,15 @@ class CompanyController extends Controller
     protected $user;
     public function __construct()
     {
-        // $this->middleware('permission:workshop-company-list')->only('index');
-        // $this->middleware('permission:workshop-company-create')->only('store');
-        // $this->middleware('permission:workshop-company-view')->only('view');
-        // $this->middleware('permission:workshop-company-edit')->only('update');
-        // $this->middleware('permission:workshop-company-status')->only('changeStatus');
-        // $this->middleware(function ($request, $next) {
-        //     $this->user = Auth::guard('web')->user();
-        //     return $next($request);
-        // });
+        $this->middleware('permission:workshop-company-list')->only('index');
+        $this->middleware('permission:workshop-company-create')->only('store');
+        $this->middleware('permission:workshop-company-view')->only('view');
+        $this->middleware('permission:workshop-company-edit')->only('update');
+        $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('sso')->user();
+            return $next($request);
+        });
     }
 
     protected array $sortFields = [
@@ -44,19 +44,19 @@ class CompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-        $query = workshopCompany::join('users', 'users.id', 'workshop_companies.created_by')
-            ->select(
-                'workshop_companies.id',
-                'workshop_companies.company_pa',
-                'workshop_companies.company_dr',
-                'workshop_companies.company_en',
-                'workshop_companies.address',
-                'workshop_companies.icon',
-                'workshop_companies.reason_dismissed',
-                'workshop_companies.created_at',
-                'workshop_companies.tin',
-                'users.name as ownerName',
-            )
+        // join('users', 'users.id', 'workshop_companies.created_by')
+        $query = workshopCompany::select(
+            'workshop_companies.id',
+            'workshop_companies.company_pa',
+            'workshop_companies.company_dr',
+            'workshop_companies.company_en',
+            'workshop_companies.address',
+            'workshop_companies.icon',
+            'workshop_companies.reason_dismissed',
+            'workshop_companies.created_at',
+            'workshop_companies.tin',
+            'workshop_companies.created_by_name as ownerName',
+        )
             ->orderBy($sortField, $sortOrder)
             ->when($request->status == 'rejected', function ($query) {
                 return $query->whereHas('workshopLicenses', function ($query) {
@@ -140,25 +140,24 @@ class CompanyController extends Controller
         if (!is_numeric($id)) {
             $id = decode_id($id);
         }
-
-        $record = workshopCompany::join('users', 'users.id', '=', 'workshop_companies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'workshop_companies.created_location')
-            ->join('departments', 'departments.id', '=', 'workshop_companies.created_department')
-            ->select(
-                'workshop_companies.id',
-                'workshop_companies.company_pa',
-                'workshop_companies.company_dr',
-                'workshop_companies.company_en',
-                'workshop_companies.icon',
-                'workshop_companies.tin',
-                'workshop_companies.address',
-                'workshop_companies.status',
-                'workshop_companies.reason_dismissed',
-                'workshop_companies.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
-            )
+        // join('users', 'users.id', '=', 'workshop_companies.created_by')
+        //             ->join('provinces', 'provinces.id', '=', 'workshop_companies.created_location')
+        //             ->join('departments', 'departments.id', '=', 'workshop_companies.created_department')
+        $record = workshopCompany::select(
+            'workshop_companies.id',
+            'workshop_companies.company_pa',
+            'workshop_companies.company_dr',
+            'workshop_companies.company_en',
+            'workshop_companies.icon',
+            'workshop_companies.tin',
+            'workshop_companies.address',
+            'workshop_companies.status',
+            'workshop_companies.reason_dismissed',
+            'workshop_companies.created_at',
+            // 'users.name as createdBy',
+            // 'provinces.name_dr as createdLocation',
+            // 'departments.name_da as createdDepartment'
+        )
             ->find($id);
 
         if (!$record) {

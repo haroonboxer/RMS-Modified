@@ -38,9 +38,10 @@ const DashboardWrapper: FC = () => {
   const {currentUser} = useAuth()
   const {t} = useTranslation()
   const navigate = useNavigate()
-
+    console.log(currentUser);
   useEffect(() => {
-    navigate('/workshop/list')
+
+     navigate('/workshop/list')
   }, [navigate])
 
   return (

@@ -50,11 +50,11 @@ export const storeLicense = createAsyncThunk(
 )
 
 
-export const viewLicense = createAsyncThunk(
-  'api/workshopLicense/view',
+export const viewLicense = createAsyncThunk('api/workshopLicense/view',
   async ({ id }: { id: number }, thunkAPI) => {
     try {
       const response = await workshopLicenseService.view(id)
+      console.log(response);
       return response.data
     } catch (error: any) {
       const message =

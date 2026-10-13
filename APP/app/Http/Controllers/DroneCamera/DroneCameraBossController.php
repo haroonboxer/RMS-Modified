@@ -13,17 +13,17 @@ use Illuminate\Support\Facades\DB;
 class DroneCameraBossController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-boss-list')->only('index');
-    //     $this->middleware('permission:workshop-boss-create')->only('store');
-    //     $this->middleware('permission:workshop-boss-view')->only('view');
-    //     $this->middleware('permission:workshop-boss-edit')->only('edit');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-boss-list')->only('index');
+        $this->middleware('permission:workshop-boss-create')->only('store');
+        $this->middleware('permission:workshop-boss-view')->only('view');
+        $this->middleware('permission:workshop-boss-edit')->only('edit');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
     protected array $sortFields = [
         'drone_camera_bosses.id',
         'drone_camera_bosses.name_dr',
@@ -39,12 +39,11 @@ class DroneCameraBossController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-        $query = DroneCameraBoss::join('users', 'users.id', 'drone_camera_bosses.created_by')
-            ->select(
-                'drone_camera_bosses.*',
-                'drone_camera_bosses.photo',
-                'users.name as ownerName'
-            )
+        $query = DroneCameraBoss::select(
+            'drone_camera_bosses.*',
+            'drone_camera_bosses.photo',
+            'drone_camera_bosses.created_by_name as ownerName'
+        )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
                 return $query->where('drone_camera_bosses.company_id', $companyId);
@@ -136,16 +135,18 @@ class DroneCameraBossController extends Controller
             $id = decode_id($id);
         }
 
-        $record = DroneCameraBoss::join('users', 'users.id', '=', 'drone_camera_bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'drone_camera_bosses.created_location')
-            ->join('departments', 'departments.id', '=', 'drone_camera_bosses.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'drone_camera_bosses.main_province')
+        $record = DroneCameraBoss::
+            //  join('users', 'users.id', '=', 'drone_camera_bosses.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'drone_camera_bosses.created_location')
+            // ->join('departments', 'departments.id', '=', 'drone_camera_bosses.created_department')
+            // ->
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'drone_camera_bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'drone_camera_bosses.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'drone_camera_bosses.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'drone_camera_bosses.current_district')
             ->select(
                 'drone_camera_bosses.*',
-                'users.name as createdBy',
+                'drone_camera_bosses.created_by_name as createdBy',
                 'provinces.name_dr as createdLocation',
                 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',

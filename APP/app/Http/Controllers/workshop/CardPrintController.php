@@ -49,13 +49,13 @@ class CardPrintController extends Controller
             ->leftJoin('workshop_companies', 'workshop_licenses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_bosses', 'workshop_bosses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_assistants', 'workshop_assistants.company_id', '=', 'workshop_companies.id')
-            ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
+            //->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
             ->select(
                 'workshop_licenses.*',
                 'workshop_companies.company_dr as company_name_dr',
                 'workshop_bosses.name_dr as boss_name_dr',
                 'workshop_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName'
+                'workshop_licenses.created_by_name as ownerName'
             )
             ->whereIn('workshop_licenses.status', [1, 2, 3])
             ->whereIn('workshop_licenses.printed', [0])
@@ -105,13 +105,14 @@ class CardPrintController extends Controller
 
     public function view($id)
     {
+        return "reached";
         $data = DB::table('workshop_licenses')
             ->join('workshop_companies', 'workshop_licenses.company_id', '=', 'workshop_companies.id')
             ->join('workshop_bosses', 'workshop_bosses.company_id', '=', 'workshop_companies.id')
             ->join('workshop_assistants', 'workshop_assistants.company_id', '=', 'workshop_companies.id')
-            ->join('provinces', 'provinces.id', '=', 'workshop_licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'workshop_licenses.created_department')
-            ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
+            // ->join('provinces', 'provinces.id', '=', 'workshop_licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'workshop_licenses.created_department')
+            // ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
             ->select(
                 'workshop_licenses.*',
                 'workshop_licenses.license_type',
@@ -124,9 +125,9 @@ class CardPrintController extends Controller
                 'workshop_assistants.name_dr as assistant_name_dr',
                 'workshop_assistants.name_en as assistant_name_en',
                 'workshop_assistants.photo as assistant_photo',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
-                'users.name as ownerName'
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
+                'workshop_licenses.created_by_name as ownerName'
             )
             ->where('workshop_licenses.id', $id)
             ->first();
@@ -143,7 +144,7 @@ class CardPrintController extends Controller
             ->leftJoin('workshop_companies', 'workshop_licenses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_bosses', 'workshop_bosses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_assistants', 'workshop_assistants.company_id', '=', 'workshop_companies.id')
-            ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
             ->select(
                 'workshop_licenses.*',
                 'workshop_companies.company_dr as company_name_dr',
@@ -159,7 +160,7 @@ class CardPrintController extends Controller
                 'workshop_assistants.last_name_en as assistant_last_name_en',
                 'workshop_assistants.name_en as assistant_name_en',
                 'workshop_assistants.photo as assistant_photo',
-                'users.name as ownerName'
+                'workshop_licenses.created_by_name as ownerName'
             )
             ->where('workshop_licenses.id', $id)
             ->first();

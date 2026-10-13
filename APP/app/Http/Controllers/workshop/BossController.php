@@ -40,12 +40,13 @@ class BossController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-        $query = workshopBoss::join('users', 'users.id', 'workshop_bosses.created_by')
-            ->select(
-                'workshop_bosses.*',
-                'workshop_bosses.photo',
-                'users.name as ownerName'
-            )
+        // join('users', 'users.id', 'workshop_bosses.created_by')
+        //     ->
+        $query = workshopBoss::select(
+            'workshop_bosses.*',
+            'workshop_bosses.photo',
+            'workshop_bosses.created_by_name as ownerName'
+        )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
                 return $query->where('workshop_bosses.company_id', $companyId);

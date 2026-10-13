@@ -13,17 +13,17 @@ use Illuminate\Support\Facades\DB;
 class DroneCameraAssistantController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-assistant-list')->only('index');
-    //     $this->middleware('permission:workshop-assistant-create')->only('store');
-    //     $this->middleware('permission:workshop-assistant-view')->only('view');
-    //     $this->middleware('permission:workshop-assistant-edit')->only('update');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-assistant-list')->only('index');
+        $this->middleware('permission:workshop-assistant-create')->only('store');
+        $this->middleware('permission:workshop-assistant-view')->only('view');
+        $this->middleware('permission:workshop-assistant-edit')->only('update');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = ['drone_camera_assistants.id', 'drone_camera_assistants.name_dr', 'drone_camera_assistants.email', 'drone_camera_assistants.status', 'drone_camera_assistants.created_at'];
 
@@ -33,31 +33,31 @@ class DroneCameraAssistantController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
-
-        $query = DroneCameraAssistant::join('users', 'users.id', '=', 'drone_camera_assistants.created_by')
-            ->select(
-                'drone_camera_assistants.id',
-                'drone_camera_assistants.name_dr',
-                'drone_camera_assistants.name_en',
-                'drone_camera_assistants.last_name_dr',
-                'drone_camera_assistants.last_name_en',
-                'drone_camera_assistants.f_name_da',
-                'drone_camera_assistants.email',
-                'drone_camera_assistants.phone',
-                'drone_camera_assistants.passport_no',
-                'drone_camera_assistants.country',
-                'drone_camera_assistants.type_residence_info',
-                'drone_camera_assistants.photo',
-                'drone_camera_assistants.main_province',
-                'drone_camera_assistants.main_district',
-                'drone_camera_assistants.main_village',
-                'drone_camera_assistants.current_province',
-                'drone_camera_assistants.current_district',
-                'drone_camera_assistants.current_village',
-                'drone_camera_assistants.status',
-                'drone_camera_assistants.created_at',
-                'users.name as ownerName',
-            )
+        // join('users', 'users.id', '=', 'drone_camera_assistants.created_by')
+        //             ->
+        $query = DroneCameraAssistant::select(
+            'drone_camera_assistants.id',
+            'drone_camera_assistants.name_dr',
+            'drone_camera_assistants.name_en',
+            'drone_camera_assistants.last_name_dr',
+            'drone_camera_assistants.last_name_en',
+            'drone_camera_assistants.f_name_da',
+            'drone_camera_assistants.email',
+            'drone_camera_assistants.phone',
+            'drone_camera_assistants.passport_no',
+            'drone_camera_assistants.country',
+            'drone_camera_assistants.type_residence_info',
+            'drone_camera_assistants.photo',
+            'drone_camera_assistants.main_province',
+            'drone_camera_assistants.main_district',
+            'drone_camera_assistants.main_village',
+            'drone_camera_assistants.current_province',
+            'drone_camera_assistants.current_district',
+            'drone_camera_assistants.current_village',
+            'drone_camera_assistants.status',
+            'drone_camera_assistants.created_at',
+            'drone_camera_assistants.craeted_by_name as ownerName',
+        )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
                 return $query->where('drone_camera_assistants.company_id', $companyId);
@@ -151,23 +151,20 @@ class DroneCameraAssistantController extends Controller
     protected function view($id)
     {
 
-        $assistant = DroneCameraAssistant::join('users', 'users.id', '=', 'drone_camera_assistants.created_by')
-            ->join('provinces', 'provinces.id', '=', 'drone_camera_assistants.created_location')
-            ->join('departments', 'departments.id', '=', 'drone_camera_assistants.created_department')
-            // PgSql Only
-            // Casted joins to handle string-vs-bigint mismatch in PostgreSQL
-            // ->leftJoin('provinces as main_province', DB::raw('main_province.id::text'), '=', 'drone_camera_assistants.main_province')
-            // ->leftJoin('districts as main_district', DB::raw('main_district.id::text'), '=', 'drone_camera_assistants.main_district')
-            // ->leftJoin('provinces as current_province', DB::raw('current_province.id::text'), '=', 'drone_camera_assistants.current_province')
-            // ->leftJoin('districts as current_district', DB::raw('current_district.id::text'), '=', 'drone_camera_assistants.current_district')
-            // MySql Only
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'drone_camera_assistants.main_province')
+        $assistant = DroneCameraAssistant::
+            //  join('users', 'users.id', '=', 'drone_camera_assistants.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'drone_camera_assistants.created_location')
+            // ->join('departments', 'departments.id', '=', 'drone_camera_assistants.created_department')
+
+            // // MySql Only
+            // ->
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'drone_camera_assistants.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'drone_camera_assistants.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'drone_camera_assistants.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'drone_camera_assistants.current_district')
             ->select(
                 'drone_camera_assistants.*',
-                'users.name as ownerName',
+                'drone_camera_assistants.created_by_name as ownerName',
                 'provinces.name_dr as createdLocation',
                 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',

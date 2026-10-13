@@ -96,9 +96,10 @@ const DataTable: React.FC<any> = ({headers, columns, onRecordsChange}) => {
 
   const memoizedData = useMemo(() => data, [data])
   const memoizedLoading = useMemo(() => loading, [loading])
-
+  console.log("isAuthorized "+isAuthorized);
   return (
     <div>
+
       {isAuthorized ? (
         <>
           <div className='form collapse' id='movementSearch'>
