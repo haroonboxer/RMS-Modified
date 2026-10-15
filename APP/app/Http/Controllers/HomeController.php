@@ -13,7 +13,7 @@ class HomeController extends Controller
 
     public function index()
     {
-        $data['systems'] = System::get(['id', 'name_' .  get_locale() . ' as name','icon','route']);
+        $data['systems'] = System::get(['id', 'name_' .  get_locale() . ' as name', 'icon', 'route']);
         return view('home', $data);
     }
 }

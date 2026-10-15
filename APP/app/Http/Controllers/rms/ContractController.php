@@ -40,8 +40,9 @@ class ContractController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
 
-        $query = Contract::join('users', 'users.id', 'contracts.created_by')
-            ->select(
+        $query = Contract::
+            // join('users', 'users.id', 'contracts.created_by')
+            select(
                 'contracts.id',
                 'contracts.contract_source',
                 'contracts.contract_location',
@@ -55,8 +56,8 @@ class ContractController extends Controller
                 'contracts.equipments_value',
                 'contracts.other_equipments',
                 'contracts.status',
-                'contracts.created_at',
-                'users.name as ownerName'
+                'contracts.created_at_name',
+                'contracts.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -101,8 +102,10 @@ class ContractController extends Controller
         $record->other_equipments = $request->other_equipments;
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
+
         $record->save();
 
         $parent_id = $record->id;
@@ -132,10 +135,11 @@ class ContractController extends Controller
 
     protected function view($id)
     {
-        $contract = Contract::join('users', 'users.id', '=', 'contracts.created_by')
-            ->join('provinces', 'provinces.id', '=', 'contracts.created_location')
-            ->join('departments', 'departments.id', '=', 'contracts.created_department')
-            ->select(
+        $contract = Contract::
+            // join('users', 'users.id', '=', 'contracts.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'contracts.created_location')
+            // ->join('departments', 'departments.id', '=', 'contracts.created_department')
+            select(
                 'contracts.id',
                 'contracts.contract_source',
                 'contracts.contract_location',
@@ -150,9 +154,9 @@ class ContractController extends Controller
                 'contracts.other_equipments',
                 'contracts.status',
                 'contracts.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'contracts.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
             )
             ->where('contracts.id', $id)
             ->firstOrFail();
@@ -236,5 +240,4 @@ class ContractController extends Controller
             'message' => 'Status updated successfully.',
         ], 200);
     }
-
 }

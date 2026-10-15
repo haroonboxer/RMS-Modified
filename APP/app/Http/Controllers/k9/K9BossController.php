@@ -44,11 +44,12 @@ class K9BossController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-        $query = K9Boss::join('users', 'users.id', 'k9_bosses.created_by')
-            ->select(
+        $query = K9Boss::
+            // join('users', 'users.id', 'k9_bosses.created_by')
+            select(
                 'k9_bosses.*',
                 'k9_bosses.photo',
-                'users.name as ownerName'
+                'k9_bosses.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -99,8 +100,9 @@ class K9BossController extends Controller
             $record->company_id = (int) decode_id($request->company_id);
             $record->status = $request->status ?? 1;
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->created_by_name = userName();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
             $record->save();
 
             $parent_id = $record->id;
@@ -141,18 +143,19 @@ class K9BossController extends Controller
             $id = decode_id($id);
         }
 
-        $record = K9Boss::join('users', 'users.id', '=', 'k9_bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'k9_bosses.created_location')
-            ->join('departments', 'departments.id', '=', 'k9_bosses.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'k9_bosses.main_province')
+        $record = K9Boss::
+            // join('users', 'users.id', '=', 'k9_bosses.created_by')
+            //   join('provinces', 'provinces.id', '=', 'k9_bosses.created_location')
+            // ->join('departments', 'departments.id', '=', 'k9_bosses.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'k9_bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'k9_bosses.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'k9_bosses.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'k9_bosses.current_district')
             ->select(
                 'k9_bosses.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'k9_bosses.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

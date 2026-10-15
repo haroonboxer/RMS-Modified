@@ -61,7 +61,7 @@ class BossController extends Controller
 
     protected function store(WorkshopBossRequest $request)
     {
-        // dd($request->all());
+
         DB::beginTransaction();
         try {
             $company_id = $request->company_id ? decode_id($request->company_id) : null;
@@ -72,7 +72,8 @@ class BossController extends Controller
             }
             $photoPath = '';
 
-            if ($request->hasFile('photo')) {
+            if ($request->hasFile('photo')) 
+            {
                 $photoPath = $request->file('photo')->store('workshopBosses/photos/' . date('Y') . '/' . date('m'), 'public');
             }
 
@@ -96,8 +97,9 @@ class BossController extends Controller
             $record->company_id = (int) decode_id($request->company_id);
             $record->status = $request->status ?? 1;
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->created_by_name = userName();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
             $record->save();
 
             $parent_id = $record->id;
@@ -138,18 +140,19 @@ class BossController extends Controller
             $id = decode_id($id);
         }
 
-        $record = workshopBoss::join('users', 'users.id', '=', 'workshop_bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'workshop_bosses.created_location')
-            ->join('departments', 'departments.id', '=', 'workshop_bosses.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'workshop_bosses.main_province')
+        $record = workshopBoss::
+            // join('users', 'users.id', '=', 'workshop_bosses.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'workshop_bosses.created_location')
+            // ->join('departments', 'departments.id', '=', 'workshop_bosses.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'workshop_bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'workshop_bosses.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'workshop_bosses.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'workshop_bosses.current_district')
             ->select(
                 'workshop_bosses.*',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'workshop_bosses.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

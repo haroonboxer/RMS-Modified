@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class AssistantController extends Controller
 {
+    protected $user;
     public function __construct()
     {
         $this->middleware('permission:assistant-list')->only('index');
@@ -35,8 +36,9 @@ class AssistantController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
 
-        $query = Assistant::join('users', 'users.id', '=', 'assistants.created_by')
-            ->select(
+        $query = Assistant::
+            // join('users', 'users.id', '=', 'assistants.created_by')
+            select(
                 'assistants.id',
                 'assistants.name_dr',
                 'assistants.name_en',
@@ -57,7 +59,7 @@ class AssistantController extends Controller
                 'assistants.current_village',
                 'assistants.status',
                 'assistants.created_at',
-                'users.name as ownerName',
+                'assistants.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -86,7 +88,7 @@ class AssistantController extends Controller
 
     protected function store(AssistantRequest $request)
     {
-        
+
         DB::beginTransaction();
         try {
             $company_id = $request->company_id ? (int) decode_id($request->company_id) : null;
@@ -115,8 +117,9 @@ class AssistantController extends Controller
                 'current_village' => $request->current_village,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name' =>userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -149,10 +152,11 @@ class AssistantController extends Controller
 
     protected function view($id)
     {
-        $assistant = Assistant::join('users', 'users.id', '=', 'assistants.created_by')
-            ->join('provinces', 'provinces.id', '=', 'assistants.created_location')
-            ->join('departments', 'departments.id', '=', 'assistants.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'assistants.main_province')
+        $assistant = Assistant::
+            //   join('users', 'users.id', '=', 'assistants.created_by')
+            //  join('provinces', 'provinces.id', '=', 'assistants.created_location')
+            // ->join('departments', 'departments.id', '=', 'assistants.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'assistants.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'assistants.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'assistants.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'assistants.current_district')
@@ -178,9 +182,9 @@ class AssistantController extends Controller
                 'assistants.status',
                 'assistants.reason_dismissed',
                 'assistants.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'assistants.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

@@ -17,17 +17,18 @@ use Illuminate\Support\Facades\DB;
 
 class AssistantController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-assistant-list')->only('index');
-    //     $this->middleware('permission:workshop-assistant-create')->only('store');
-    //     $this->middleware('permission:workshop-assistant-view')->only('view');
-    //     $this->middleware('permission:workshop-assistant-edit')->only('update');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    protected $user;
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-assistant-list')->only('index');
+        $this->middleware('permission:workshop-assistant-create')->only('store');
+        $this->middleware('permission:workshop-assistant-view')->only('view');
+        $this->middleware('permission:workshop-assistant-edit')->only('update');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = ['gps_company_assistants.id', 'gps_company_assistants.name_dr', 'gps_company_assistants.email', 'gps_company_assistants.status', 'gps_company_assistants.created_at'];
 
@@ -38,8 +39,9 @@ class AssistantController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
 
-        $query = GpsCompanyAssistant::join('users', 'users.id', '=', 'gps_company_assistants.created_by')
-            ->select(
+        $query = GpsCompanyAssistant::
+            // join('users', 'users.id', '=', 'gps_company_assistants.created_by')
+            select(
                 'gps_company_assistants.id',
                 'gps_company_assistants.name_dr',
                 'gps_company_assistants.name_en',
@@ -60,7 +62,7 @@ class AssistantController extends Controller
                 'gps_company_assistants.current_village',
                 'gps_company_assistants.status',
                 'gps_company_assistants.created_at',
-                'users.name as ownerName',
+                'gps_company_assistants.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -121,8 +123,9 @@ class AssistantController extends Controller
                 'current_village' => $request->current_village,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name' => userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -157,8 +160,9 @@ class AssistantController extends Controller
     protected function view($id)
     {
 
-        $assistant = GpsCompanyAssistant::join('users', 'users.id', '=', 'gps_company_assistants.created_by')
-            ->join('provinces', 'provinces.id', '=', 'gps_company_assistants.created_location')
+        $assistant = GpsCompanyAssistant::
+            //join('users', 'users.id', '=', 'gps_company_assistants.created_by')
+            join('provinces', 'provinces.id', '=', 'gps_company_assistants.created_location')
             ->join('departments', 'departments.id', '=', 'gps_company_assistants.created_department')
             // Casted joins to handle string-vs-bigint mismatch in PostgreSQL
             ->leftJoin('provinces as main_province', DB::raw('main_province.id::text'), '=', 'gps_company_assistants.main_province')
@@ -168,9 +172,9 @@ class AssistantController extends Controller
 
             ->select(
                 'gps_company_assistants.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'created_by_name.name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

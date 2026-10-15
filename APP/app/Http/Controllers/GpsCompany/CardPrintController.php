@@ -9,22 +9,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Milon\Barcode\DNS2D;
-
+use Illuminate\Support\Facades\Auth;
 class CardPrintController extends Controller
 {
     public $user;
 
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-print-list')->only('index');
-    //     $this->middleware('permission:workshop-print-accept')->only('changeStatusOfLicense');
-    //     $this->middleware('permission:workshop-print-card')->only('generateIDCard');
-    //     $this->middleware('permission:workshop-print-card-view')->only('view');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-print-list')->only('index');
+        $this->middleware('permission:workshop-print-accept')->only('changeStatusOfLicense');
+        $this->middleware('permission:workshop-print-card')->only('generateIDCard');
+        $this->middleware('permission:workshop-print-card-view')->only('view');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     public array $sortFields = [
         'gps_companies.company_dr',
@@ -44,7 +44,7 @@ class CardPrintController extends Controller
             ->leftJoin('gps_companies', 'gps_company_licenses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_bosses', 'gps_company_bosses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_assistants', 'gps_company_assistants.company_id', '=', 'gps_companies.id')
-            ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
             // 👇 NEW JOINS for agency and province
             ->leftJoin('gps_company_agencies', 'gps_company_licenses.agency_id', '=', 'gps_company_agencies.id')
             ->leftJoin('provinces', 'provinces.id', '=', 'gps_company_agencies.main_province')
@@ -53,7 +53,7 @@ class CardPrintController extends Controller
                 'gps_companies.company_dr as company_name_dr',
                 'gps_company_bosses.name_dr as boss_name_dr',
                 'gps_company_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName',
+                'gps_company_licenses.created_by_name as ownerName',
                 // 👇 NEW selected field
                 'provinces.name_dr as mainProvinceName'
             )
@@ -111,7 +111,7 @@ class CardPrintController extends Controller
             ->join('gps_company_assistants', 'gps_company_assistants.company_id', '=', 'gps_companies.id')
             ->join('provinces', 'provinces.id', '=', 'gps_company_licenses.created_location')
             ->join('departments', 'departments.id', '=', 'gps_company_licenses.created_department')
-            ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
             ->select(
                 'gps_company_licenses.*',
                 'gps_company_licenses.license_type',
@@ -124,9 +124,9 @@ class CardPrintController extends Controller
                 'gps_company_assistants.name_dr as assistant_name_dr',
                 'gps_company_assistants.name_en as assistant_name_en',
                 'gps_company_assistants.photo as assistant_photo',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
-                'users.name as ownerName'
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
+                'gps_company_licenses.created_by_name as ownerName'
             )
             ->where('gps_company_licenses.id', $id)
             ->first();
@@ -143,7 +143,7 @@ class CardPrintController extends Controller
             ->leftJoin('gps_companies', 'gps_company_licenses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_bosses', 'gps_company_bosses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_assistants', 'gps_company_assistants.company_id', '=', 'gps_companies.id')
-            ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
 
             ->select(
                 'gps_company_licenses.*',
@@ -164,7 +164,7 @@ class CardPrintController extends Controller
                 'gps_company_assistants.name_en as assistant_name_en',
                 'gps_company_assistants.photo as assistant_photo',
 
-                'users.name as ownerName'
+                'gps_company_licenses.created_by_name as ownerName'
             )
             ->where('gps_company_licenses.id', $id)
             ->first();
@@ -200,7 +200,7 @@ class CardPrintController extends Controller
             'data',
             'barcodeDataUri',
             'serialNumber',
-            'agencies' 
+            'agencies'
         ))->render();
 
         return response()->json([

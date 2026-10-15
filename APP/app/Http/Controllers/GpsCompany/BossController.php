@@ -15,17 +15,17 @@ use Illuminate\Support\Facades\DB;
 class BossController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-boss-list')->only('index');
-    //     $this->middleware('permission:workshop-boss-create')->only('store');
-    //     $this->middleware('permission:workshop-boss-view')->only('view');
-    //     $this->middleware('permission:workshop-boss-edit')->only('edit');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-boss-list')->only('index');
+        $this->middleware('permission:workshop-boss-create')->only('store');
+        $this->middleware('permission:workshop-boss-view')->only('view');
+        $this->middleware('permission:workshop-boss-edit')->only('edit');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
     protected array $sortFields = [
         'gps_company_bosses.id',
         'gps_company_bosses.name_dr',
@@ -41,11 +41,12 @@ class BossController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-        $query = GpsCompanyBoss::join('users', 'users.id', 'gps_company_bosses.created_by')
-            ->select(
+        $query = GpsCompanyBoss::
+            // join('users', 'users.id', 'gps_company_bosses.created_by')
+            select(
                 'gps_company_bosses.*',
                 'gps_company_bosses.photo',
-                'users.name as ownerName'
+                'gps_company_bosses.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -96,8 +97,9 @@ class BossController extends Controller
             $record->company_id = (int) decode_id($request->company_id);
             $record->status = $request->status ?? 1;
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->created_by_name = userName();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
             $record->save();
 
             $parent_id = $record->id;
@@ -138,8 +140,9 @@ class BossController extends Controller
             $id = decode_id($id);
         }
 
-        $record = GpsCompanyBoss::join('users', 'users.id', '=', 'gps_company_bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'gps_company_bosses.created_location')
+        $record = GpsCompanyBoss::
+            // join('users', 'users.id', '=', 'gps_company_bosses.created_by')
+            join('provinces', 'provinces.id', '=', 'gps_company_bosses.created_location')
             ->join('departments', 'departments.id', '=', 'gps_company_bosses.created_department')
             ->leftJoin('provinces as main_province', 'main_province.id', '=', 'gps_company_bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'gps_company_bosses.main_district')
@@ -147,9 +150,9 @@ class BossController extends Controller
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'gps_company_bosses.current_district')
             ->select(
                 'gps_company_bosses.*',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'gps_company_bosses.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

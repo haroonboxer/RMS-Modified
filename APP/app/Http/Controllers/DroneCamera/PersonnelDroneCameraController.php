@@ -8,22 +8,23 @@ use App\Http\Resources\drone\PersonnelDroneCameraResource;
 use Illuminate\Http\Request;
 use App\Models\Auth\Attachments;
 use App\Models\DroneCamera\PersonnelDroneCamera;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PersonnelDroneCameraController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-boss-list')->only('index');
-    //     $this->middleware('permission:workshop-boss-create')->only('store');
-    //     $this->middleware('permission:workshop-boss-view')->only('view');
-    //     $this->middleware('permission:workshop-boss-edit')->only('edit');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-boss-list')->only('index');
+        $this->middleware('permission:workshop-boss-create')->only('store');
+        $this->middleware('permission:workshop-boss-view')->only('view');
+        $this->middleware('permission:workshop-boss-edit')->only('edit');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
     protected array $sortFields = [
         'personnel_drone_cameras.id',
         'personnel_drone_cameras.name_dr',
@@ -42,10 +43,10 @@ class PersonnelDroneCameraController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
 
         $query = PersonnelDroneCamera::query()
-            ->leftJoin('users', 'users.id', '=', 'personnel_drone_cameras.created_by')
+            // ->leftJoin('users', 'users.id', '=', 'personnel_drone_cameras.created_by')
             ->select(
                 'personnel_drone_cameras.*',
-                'users.name as ownerName'
+                'personnel_drone_cameras.created as ownerName'
             )
             ->when($request->filled('name_dr'), function ($query) use ($request) {
                 $query->where(
@@ -104,8 +105,9 @@ class PersonnelDroneCameraController extends Controller
             $record->reason_dismissed = $request->reason_dismissed;
 
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->craeted_by_name = username();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
 
             $record->save();
 
@@ -153,7 +155,7 @@ class PersonnelDroneCameraController extends Controller
         }
 
         $record = PersonnelDroneCamera::query()
-            ->leftJoin('users', 'users.id', '=', 'personnel_drone_cameras.created_by')
+            // ->leftJoin('users', 'users.id', '=', 'personnel_drone_cameras.created_by')
             ->leftJoin('provinces', 'provinces.id', '=', 'personnel_drone_cameras.created_location')
             ->leftJoin('departments', 'departments.id', '=', 'personnel_drone_cameras.created_department')
 
@@ -165,9 +167,9 @@ class PersonnelDroneCameraController extends Controller
 
             ->select(
                 'personnel_drone_cameras.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'personnel_drone_cameras.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

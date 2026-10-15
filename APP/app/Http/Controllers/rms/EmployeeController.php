@@ -41,8 +41,9 @@ class EmployeeController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
 
-        $query = Employee::join('users', 'users.id', 'employees.created_by')
-            ->select(
+        $query = Employee::
+            // join('users', 'users.id', 'employees.created_by')
+            select(
                 'employees.id',
                 'employees.name',
                 'employees.f_name',
@@ -61,7 +62,7 @@ class EmployeeController extends Controller
                 'employees.current_district',
                 'employees.current_village',
                 'employees.created_at',
-                'users.name as ownerName'
+                'employees.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -104,8 +105,9 @@ class EmployeeController extends Controller
         $record->current_village = $request->current_village;
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -134,10 +136,11 @@ class EmployeeController extends Controller
 
     protected function view($id)
     {
-        $employee = Employee::join('users', 'users.id', '=', 'employees.created_by')
-            ->join('provinces', 'provinces.id', '=', 'employees.created_location')
-            ->join('departments', 'departments.id', '=', 'employees.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'employees.main_province')
+        $employee = Employee::
+            // join('users', 'users.id', '=', 'employees.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'employees.created_location')
+            // ->join('departments', 'departments.id', '=', 'employees.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'employees.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'employees.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'employees.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'employees.current_district')
@@ -160,9 +163,9 @@ class EmployeeController extends Controller
                 'employees.current_village',
                 'employees.status',
                 'employees.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'employees.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

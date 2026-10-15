@@ -9,6 +9,7 @@ use App\Models\Auth\Attachments;
 use App\Models\DroneCamera\DroneCameraAssistant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DroneCameraAssistantController extends Controller
 {
@@ -115,8 +116,9 @@ class DroneCameraAssistantController extends Controller
                 'current_village' => $request->current_village,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name'=>username(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -165,8 +167,8 @@ class DroneCameraAssistantController extends Controller
             ->select(
                 'drone_camera_assistants.*',
                 'drone_camera_assistants.created_by_name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

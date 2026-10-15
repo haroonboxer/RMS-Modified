@@ -41,11 +41,12 @@ class BossController extends Controller
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
-        $query = Boss::join('users', 'users.id', 'bosses.created_by')
-            ->select(
+        $query = Boss::
+            // join('users', 'users.id', 'bosses.created_by')
+            select(
                 'bosses.*',
                 'bosses.photo',
-                'users.name as ownerName'
+                'bosses.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -97,8 +98,9 @@ class BossController extends Controller
             $record->company_id = (int) decode_id($request->company_id);
             $record->status = $request->status ?? 1;
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->created_by_name = userName();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
             $record->save();
 
             $parent_id = $record->id;
@@ -139,10 +141,11 @@ class BossController extends Controller
             $id = decode_id($id);
         }
 
-        $record = Boss::join('users', 'users.id', '=', 'Bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'Bosses.created_location')
-            ->join('departments', 'departments.id', '=', 'Bosses.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'Bosses.main_province')
+        $record = Boss::
+            // join('users', 'users.id', '=', 'Bosses.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'Bosses.created_location')
+            // ->join('departments', 'departments.id', '=', 'Bosses.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'Bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'Bosses.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'Bosses.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'Bosses.current_district')
@@ -168,9 +171,9 @@ class BossController extends Controller
                 'bosses.reason_dismissed',
                 'bosses.status',
                 'bosses.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'Bosses.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',
@@ -186,10 +189,11 @@ class BossController extends Controller
     public function edit($id)
     {
 
-        $record = Boss::join('users', 'users.id', '=', 'Bosses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'Bosses.created_location')
-            ->join('departments', 'departments.id', '=', 'Bosses.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'Bosses.main_province')
+        $record = Boss::
+            // join('users', 'users.id', '=', 'Bosses.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'Bosses.created_location')
+            // ->join('departments', 'departments.id', '=', 'Bosses.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'Bosses.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'Bosses.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'Bosses.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'Bosses.current_district')
@@ -214,9 +218,9 @@ class BossController extends Controller
                 'bosses.type_residence_info',
                 'bosses.status',
                 'bosses.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'Bosses.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

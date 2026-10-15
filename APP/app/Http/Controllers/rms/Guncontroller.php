@@ -9,9 +9,11 @@ use App\Models\Auth\Attachments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GunController extends Controller
 {
+    protected $user;
     public function __construct()
     {
         $this->middleware('permission:gun-list')->only('index');
@@ -38,8 +40,9 @@ class GunController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? ($request->input('company_id')) : null;
         $weaponId = $request->filled('weapon_id') ? ($request->input('weapon_id')) : null;
-        $query = Gun::join('users', 'users.id', '=', 'guns.created_by')
-            ->select(
+        $query = Gun::
+            // join('users', 'users.id', '=', 'guns.created_by')
+            select(
                 'guns.id',
                 'guns.gun_no',
                 'guns.gun_type',
@@ -47,7 +50,7 @@ class GunController extends Controller
                 'guns.taedad_jabeh',
                 'guns.gun_country',
                 'guns.created_at',
-                'users.name as ownerName',
+                'guns.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -71,8 +74,8 @@ class GunController extends Controller
             $company_id = $request->company_id ? (int) ($request->company_id) : null;
             $weapon_id = $request->weapon_id ? (int)($request->weapon_id) : null;
             $created_by = userid();
-            $created_department = departmentId();
-            $created_location = locationId();
+            $created_department = creatordepartmentId();
+            $created_location = ProvinceId();
 
             $created_guns = [];
 
@@ -88,6 +91,7 @@ class GunController extends Controller
                     'created_by' => $created_by,
                     'created_department' => $created_department,
                     'created_location' => $created_location,
+                    'created_by_name' => userName(),
                 ]);
 
                 $created_guns[] = $record->id;
@@ -118,7 +122,7 @@ class GunController extends Controller
             ], 200);
         } catch (\Throwable $e) {
             DB::rollBack();
-            \Log::error('Error storing gun records: ' . $e->getMessage(), [
+            Log::error('Error storing gun records: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);

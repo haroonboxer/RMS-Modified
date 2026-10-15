@@ -44,8 +44,9 @@ class WeaponsController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
 
-        $query = WeaponsGeneralTable::join('users', 'users.id', '=', 'weapons_general_tables.created_by')
-            ->select(
+        $query = WeaponsGeneralTable::
+            // join('users', 'users.id', '=', 'weapons_general_tables.created_by')
+            select(
                 'weapons_general_tables.id',
                 'weapons_general_tables.number_of_weapons',
                 'weapons_general_tables.slip_no',
@@ -55,7 +56,7 @@ class WeaponsController extends Controller
                 'weapons_general_tables.status',
                 'weapons_general_tables.reason_dismissed',
                 'weapons_general_tables.created_at',
-                'users.name as ownerName',
+                'weapons_general_tables.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -92,8 +93,9 @@ class WeaponsController extends Controller
                 'slip_date' => $request->slip_date,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name'=>userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -175,14 +177,15 @@ class WeaponsController extends Controller
     protected function view($id)
     {
         $id = (int) $id;
-        $record = WeaponsGeneralTable::join('users', 'users.id', '=', 'weapons_general_tables.created_by')
-            ->join('departments', 'departments.id', '=', 'weapons_general_tables.created_department')
-            ->join('provinces', 'provinces.id', '=', 'weapons_general_tables.created_location')
-            ->select(
+        $record = WeaponsGeneralTable::
+            // join('users', 'users.id', '=', 'weapons_general_tables.created_by')
+            // ->join('departments', 'departments.id', '=', 'weapons_general_tables.created_department')
+            // ->join('provinces', 'provinces.id', '=', 'weapons_general_tables.created_location')
+            select(
                 'weapons_general_tables.*',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'weapons_general_tables.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->where('weapons_general_tables.id', $id)
             ->firstOrFail();

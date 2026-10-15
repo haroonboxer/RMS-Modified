@@ -36,13 +36,13 @@ class K9CardPrintController extends Controller
             ->leftJoin('k9_companies', 'k9_licenses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_bosses', 'k9_bosses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_assistants', 'k9_assistants.company_id', '=', 'k9_companies.id')
-            ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
             ->select(
                 'k9_licenses.*',
                 'k9_companies.company_dr as company_name_dr',
                 'k9_bosses.name_dr as boss_name_dr',
                 'k9_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName'
+                'k9_licenses.created_by_name as ownerName'
             )
             ->whereIn('k9_licenses.status', [1, 2, 3])
             ->where('k9_licenses.printed', 0)
@@ -143,9 +143,9 @@ class K9CardPrintController extends Controller
             ->join('k9_companies', 'k9_licenses.company_id', '=', 'k9_companies.id')
             ->join('k9_bosses', 'k9_bosses.company_id', '=', 'k9_companies.id')
             ->join('k9_assistants', 'k9_assistants.company_id', '=', 'k9_companies.id')
-            ->join('provinces', 'provinces.id', '=', 'k9_licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'k9_licenses.created_department')
-            ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
+            // ->join('provinces', 'provinces.id', '=', 'k9_licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'k9_licenses.created_department')
+            // ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
             ->select(
                 'k9_licenses.*',
                 'k9_licenses.license_type',
@@ -158,9 +158,9 @@ class K9CardPrintController extends Controller
                 'k9_assistants.name_dr as assistant_name_dr',
                 'k9_assistants.name_en as assistant_name_en',
                 'k9_assistants.photo as assistant_photo',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
-                'users.name as ownerName'
+                //'provinces.name_dr as createdLocation',
+                //'departments.name_da as createdDepartment',
+                'k9_licenses.created_byname as ownerName'
             )
             ->where('k9_licenses.id', $id)
             ->first();
@@ -178,7 +178,7 @@ class K9CardPrintController extends Controller
             ->leftJoin('k9_companies', 'k9_licenses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_bosses', 'k9_bosses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_assistants', 'k9_assistants.company_id', '=', 'k9_companies.id')
-            ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
             ->select(
                 'k9_licenses.*',
                 'k9_companies.company_dr as company_name_dr',
@@ -198,7 +198,7 @@ class K9CardPrintController extends Controller
                 'k9_assistants.last_name_en as assistant_last_name_en',
                 'k9_assistants.photo as assistant_photo',
 
-                'users.name as ownerName'
+                'k9_licenses.created_by_name as ownerName'
             )
             ->where('k9_licenses.id', $id)
             ->first();

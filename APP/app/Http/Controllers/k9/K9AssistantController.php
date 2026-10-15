@@ -37,8 +37,9 @@ class K9AssistantController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
 
-        $query = K9Assistant::join('users', 'users.id', '=', 'k9_assistants.created_by')
-            ->select(
+        $query = K9Assistant::
+            // join('users', 'users.id', '=', 'k9_assistants.created_by')
+            select(
                 'k9_assistants.id',
                 'k9_assistants.name_dr',
                 'k9_assistants.name_en',
@@ -59,7 +60,7 @@ class K9AssistantController extends Controller
                 'k9_assistants.current_village',
                 'k9_assistants.status',
                 'k9_assistants.created_at',
-                'users.name as ownerName',
+                'k9_assistants.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -118,8 +119,9 @@ class K9AssistantController extends Controller
                 'current_village' => $request->current_village,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name' => userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -154,18 +156,19 @@ class K9AssistantController extends Controller
     protected function view($id)
     {
 
-        $assistant = K9Assistant::join('users', 'users.id', '=', 'k9_assistants.created_by')
-            ->join('provinces', 'provinces.id', '=', 'k9_assistants.created_location')
-            ->join('departments', 'departments.id', '=', 'k9_assistants.created_department')
-            ->leftJoin('provinces as main_province', 'main_province.id', '=', 'k9_assistants.main_province')
+        $assistant = K9Assistant::
+            // join('users', 'users.id', '=', 'k9_assistants.created_by')
+            // join('provinces', 'provinces.id', '=', 'k9_assistants.created_location')
+            // ->join('departments', 'departments.id', '=', 'k9_assistants.created_department')
+            leftJoin('provinces as main_province', 'main_province.id', '=', 'k9_assistants.main_province')
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'k9_assistants.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'k9_assistants.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'k9_assistants.current_district')
             ->select(
                 'k9_assistants.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'k9_assistants.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

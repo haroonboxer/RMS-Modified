@@ -129,14 +129,14 @@ class K9ReportController extends Controller
             ->leftJoin('k9_companies', 'k9_licenses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_bosses', 'k9_bosses.company_id', '=', 'k9_companies.id')
             ->leftJoin('k9_assistants', 'k9_assistants.company_id', '=', 'k9_companies.id')
-            ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'k9_licenses.created_by', '=', 'users.id')
             ->select(
                 'k9_licenses.*',
                 'k9_licenses.license_type',
                 'k9_companies.company_dr as company_name_dr',
                 'k9_bosses.name_dr as boss_name_dr',
                 'k9_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName',
+                'k9_licenses.created_by_name as ownerName',
                 'k9_licenses.created_at'
             )
             ->where('k9_licenses.status', 2)

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    protected $user;
 
     public function __construct()
     {

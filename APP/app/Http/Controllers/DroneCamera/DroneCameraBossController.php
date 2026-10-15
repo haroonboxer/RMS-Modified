@@ -9,6 +9,7 @@ use App\Models\Auth\Attachments;
 use App\Models\DroneCamera\DroneCameraBoss;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DroneCameraBossController extends Controller
 {
@@ -93,8 +94,9 @@ class DroneCameraBossController extends Controller
             $record->company_id = (int) decode_id($request->company_id);
             $record->status = $request->status ?? 1;
             $record->created_by = userid();
-            $record->created_department = departmentId();
-            $record->created_location = locationId();
+            $record->created_by_name = username();
+            $record->created_department = creatordepartmentId();
+            $record->created_location = ProvinceId();
             $record->save();
 
             $parent_id = $record->id;
@@ -147,8 +149,8 @@ class DroneCameraBossController extends Controller
             ->select(
                 'drone_camera_bosses.*',
                 'drone_camera_bosses.created_by_name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',

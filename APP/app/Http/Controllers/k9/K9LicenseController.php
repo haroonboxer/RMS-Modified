@@ -28,13 +28,14 @@ class K9LicenseController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
 
-        $query = K9License::leftJoin('users', 'users.id', 'k9_licenses.created_by')
-            ->leftJoin('drone_camera_companies', 'drone_camera_companies.id', 'k9_licenses.company_id')
+        $query = K9License::
+            // leftJoin('users', 'users.id', 'k9_licenses.created_by')
+            leftJoin('drone_camera_companies', 'drone_camera_companies.id', 'k9_licenses.company_id')
             ->leftJoin('departments', 'departments.id', 'k9_licenses.created_department')
             ->leftJoin('provinces', 'provinces.id', 'k9_licenses.created_location')
             ->select(
                 'k9_licenses.*',
-                'users.name as ownerName',
+                'k9_licenses.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -81,8 +82,9 @@ class K9LicenseController extends Controller
         $record->bank_account_number = $validated['bank_account_number'];
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -119,8 +121,9 @@ class K9LicenseController extends Controller
 
     protected function view($id)
     {
-        $license = K9License::join('users', 'users.id', '=', 'k9_licenses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'k9_licenses.created_location')
+        $license = K9License::
+            // join('users', 'users.id', '=', 'k9_licenses.created_by')
+            join('provinces', 'provinces.id', '=', 'k9_licenses.created_location')
             ->join('departments', 'departments.id', '=', 'k9_licenses.created_department')
             ->select(
                 'k9_licenses.id',
@@ -132,9 +135,9 @@ class K9LicenseController extends Controller
                 'k9_licenses.bank_account_number',
                 'k9_licenses.status',
                 'k9_licenses.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'k9_licenses.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
             )
             ->where('k9_licenses.id', $id)
             ->firstOrFail();

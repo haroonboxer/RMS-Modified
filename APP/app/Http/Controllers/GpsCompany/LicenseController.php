@@ -18,17 +18,17 @@ class LicenseController extends Controller
     const DEFAULT_SORT_ORDER = 'asc';
     const PER_PAGE = 10;
 
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-license-list')->only('index');
-    //     $this->middleware('permission:workshop-license-create')->only('store');
-    //     $this->middleware('permission:workshop-license-view')->only('view');
-    //     $this->middleware('permission:workshop-license-edit')->only('update');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-license-list')->only('index');
+        $this->middleware('permission:workshop-license-create')->only('store');
+        $this->middleware('permission:workshop-license-view')->only('view');
+        $this->middleware('permission:workshop-license-edit')->only('update');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = [
         'gps_company_licenses.id',
@@ -58,13 +58,14 @@ class LicenseController extends Controller
         //         'gps_company_agencies.main_province as main_province_name',
         //         // 'main_province.name_dr as mainProvinceName',
         //     )
-        $query = GpsCompanyLicense::join(
-            'users',
-            'users.id',
-            '=',
-            'gps_company_licenses.created_by'
-        )
-            ->join(
+        $query = GpsCompanyLicense::
+            // join(
+            //     'users',
+            //     'users.id',
+            //     '=',
+            //     'gps_company_licenses.created_by'
+            // )
+            join(
                 'departments',
                 'departments.id',
                 '=',
@@ -94,7 +95,7 @@ class LicenseController extends Controller
                 'gps_company_agencies.main_village',
                 'provinces.name_dr as mainProvinceName',
                 'districts.district_dr as mainDistrictName',
-                'users.name as ownerName',
+                'gps_company_licenses.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -146,8 +147,9 @@ class LicenseController extends Controller
         $record->bank_account_number = $validated['bank_account_number'];
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -186,10 +188,11 @@ class LicenseController extends Controller
 
     protected function view($id)
     {
-        $license = GpsCompanyLicense::join('users', 'users.id', '=', 'gps_company_licenses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'gps_company_licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'gps_company_licenses.created_department')
-            ->leftjoin('gps_company_agencies', 'gps_company_agencies.id', 'gps_company_licenses.activity_type')
+        $license = GpsCompanyLicense::
+            // join('users', 'users.id', '=', 'gps_company_licenses.created_by')
+            // join('provinces', 'provinces.id', '=', 'gps_company_licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'gps_company_licenses.created_department')
+            leftjoin('gps_company_agencies', 'gps_company_agencies.id', 'gps_company_licenses.activity_type')
             ->select(
                 'gps_company_licenses.id',
                 'gps_company_licenses.license_type',
@@ -201,9 +204,9 @@ class LicenseController extends Controller
                 'gps_company_licenses.bank_account_number',
                 'gps_company_licenses.status',
                 'gps_company_licenses.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'gps_company_licenses.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                //'departments.name_da as createdDepartment',
                 'gps_company_agencies.name_dr as gpsCompanyAgencyName',
             )
             ->where('gps_company_licenses.id', $id)

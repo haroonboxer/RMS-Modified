@@ -9,20 +9,22 @@ use App\Models\GpsCompany\GpsCompany;
 use App\Models\GpsCompany\GpsCompanyAgency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class GpsCompanyAgencyController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-assistant-list')->only('index');
-    //     $this->middleware('permission:workshop-assistant-create')->only('store');
-    //     $this->middleware('permission:workshop-assistant-view')->only('view');
-    //     $this->middleware('permission:workshop-assistant-edit')->only('update');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    protected $user;
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-assistant-list')->only('index');
+        $this->middleware('permission:workshop-assistant-create')->only('store');
+        $this->middleware('permission:workshop-assistant-view')->only('view');
+        $this->middleware('permission:workshop-assistant-edit')->only('update');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = ['gps_company_agencies.id', 'gps_company_agencies.name_dr', 'gps_company_agencies.email', 'gps_company_agencies.status', 'gps_company_agencies.created_at'];
 
@@ -33,8 +35,9 @@ class GpsCompanyAgencyController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->filled('company_id') ? decode_id($request->input('company_id')) : null;
 
-        $query = GpsCompanyAgency::join('users', 'users.id', '=', 'gps_company_agencies.created_by')
-            ->leftJoin('gps_companies', "gps_companies.id", 'gps_company_agencies.company_id')
+        $query = GpsCompanyAgency::
+            // join('users', 'users.id', '=', 'gps_company_agencies.created_by')
+            leftJoin('gps_companies', "gps_companies.id", 'gps_company_agencies.company_id')
             ->leftJoin('provinces as main_province', "main_province.id", 'gps_company_agencies.main_province')
             ->leftJoin('districts as main_district', "main_district.id", 'gps_company_agencies.main_district')
             ->select(
@@ -53,7 +56,7 @@ class GpsCompanyAgencyController extends Controller
                 'gps_company_agencies.current_village',
                 'gps_company_agencies.status',
                 'gps_company_agencies.created_at',
-                'users.name as ownerName',
+                'gps_company_agencies.created_by_name as ownerName',
                 'gps_companies.company_dr as gpsCompanyName',
                 'main_province.name_dr as mainProvinceName',
                 'main_district.district_dr as mainDistrictName',
@@ -117,8 +120,9 @@ class GpsCompanyAgencyController extends Controller
                 'photo' => $photoPath ? asset('storage/' . $photoPath) : null,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name' => userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -152,18 +156,19 @@ class GpsCompanyAgencyController extends Controller
 
     protected function view($id)
     {
-        $data = GpsCompanyAgency::join('users', 'users.id', '=', 'gps_company_agencies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'gps_company_agencies.created_location')
-            ->join('departments', 'departments.id', '=', 'gps_company_agencies.created_department')
-            ->leftJoin('provinces as main_province', "main_province.id", 'gps_company_agencies.main_province')
+        $data = GpsCompanyAgency::
+            //   join('users', 'users.id', '=', 'gps_company_agencies.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'gps_company_agencies.created_location')
+            // ->join('departments', 'departments.id', '=', 'gps_company_agencies.created_department')
+            leftJoin('provinces as main_province', "main_province.id", 'gps_company_agencies.main_province')
             ->leftJoin('districts as main_district', "main_district.id", 'gps_company_agencies.main_district')
             ->leftJoin('provinces as current_province', "current_province.id",  'gps_company_agencies.current_province')
             ->leftJoin('districts as current_district', "current_district.id", 'gps_company_agencies.current_district')
             ->select(
                 'gps_company_agencies.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'gps_company_agencies.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',
@@ -205,8 +210,8 @@ class GpsCompanyAgencyController extends Controller
                 'photo' => $photoPath ? asset('storage/' . $photoPath) : null,
                 // 'company_id' => $company_id,
                 'updated_by' => userid(),
-                'updated_department' => departmentId(),
-                'updated_location' => locationId(),
+                'updated_department' => creatordepartmentId(),
+                'updated_location' => ProvinceId(),
             ]);
 
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {

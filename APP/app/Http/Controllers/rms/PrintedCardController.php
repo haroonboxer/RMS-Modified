@@ -17,18 +17,18 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class PrintedCardController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     // $this->middleware('permission:printed-card-list')->only('index');
-    //     // $this->middleware('permission:printed-card-create')->only('store');
-    //     // $this->middleware('permission:printed-card-view')->only('view');
-    //     // $this->middleware('permission:printed-card-edit')->only('update');
-    //     // $this->middleware('permission:printed-card-status')->only('changeStatus');
-    //     // $this->middleware(function ($request, $next) {
-    //     //     $this->user = Auth::guard('web')->user();
-    //     //     return $next($request);
-    //     // });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:printed-card-list')->only('index');
+        $this->middleware('permission:printed-card-create')->only('store');
+        $this->middleware('permission:printed-card-view')->only('view');
+        $this->middleware('permission:printed-card-edit')->only('update');
+        $this->middleware('permission:printed-card-status')->only('changeStatus');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = [
         'printed_cards.id',
@@ -46,11 +46,12 @@ class PrintedCardController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
 
-        $query = PrintedCard::join('users', 'users.id', 'printed_cards.created_by')
-            ->select(
+        $query = PrintedCard::
+            // join('users', 'users.id', 'printed_cards.created_by')
+            select(
                 'printed_cards.*',
                 'printed_cards.created_at',
-                'users.name as ownerName'
+                'printed_cards.created_by_name as ownerName'
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -92,8 +93,9 @@ class PrintedCardController extends Controller
         $record->expire_date = $request->expire_date;
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -123,14 +125,15 @@ class PrintedCardController extends Controller
 
     protected function view($id)
     {
-        $printedCard = PrintedCard::join('users', 'users.id', '=', 'printed_cards.created_by')
-            ->join('provinces', 'provinces.id', '=', 'printed_cards.created_location')
-            ->join('departments', 'departments.id', '=', 'printed_cards.created_department')
-            ->select(
+        $printedCard = PrintedCard::
+            // join('users', 'users.id', '=', 'printed_cards.created_by')
+            //  join('provinces', 'provinces.id', '=', 'printed_cards.created_location')
+            // ->join('departments', 'departments.id', '=', 'printed_cards.created_department')
+            select(
                 'printed_cards.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'printed_cards.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->where('printed_cards.id', $id)
             ->firstOrFail();

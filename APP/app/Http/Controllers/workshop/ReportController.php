@@ -16,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ReportController extends Controller
 {
-
+    protected $user;
     public function __construct()
     {
         $this->middleware('permission:system-report')->only('index');
@@ -139,14 +139,14 @@ class ReportController extends Controller
             ->leftJoin('workshop_companies', 'workshop_licenses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_bosses', 'workshop_bosses.company_id', '=', 'workshop_companies.id')
             ->leftJoin('workshop_assistants', 'workshop_assistants.company_id', '=', 'workshop_companies.id')
-            ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'workshop_licenses.created_by', '=', 'users.id')
             ->select(
                 'workshop_licenses.*',
                 'workshop_licenses.license_type',
                 'workshop_companies.company_dr as company_name_dr',
                 'workshop_bosses.name_dr as boss_name_dr',
                 'workshop_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName',
+                'workshop_licenses.created_by_name as ownerName',
                 'workshop_licenses.created_at'
             )
             ->where('workshop_licenses.status', 2)

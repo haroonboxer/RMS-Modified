@@ -48,8 +48,9 @@ class LicenseController extends Controller
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
         $companyId = $request->has('company_id') ? decode_id($request->company_id) : null;
 
-        $query = license::join('users', 'users.id', 'licenses.created_by')
-            ->join('companies', 'companies.id', 'licenses.company_id')
+        $query = license::
+            // join('users', 'users.id', 'licenses.created_by')
+            join('companies', 'companies.id', 'licenses.company_id')
             ->join('departments', 'departments.id', 'licenses.created_department')
             ->join('provinces', 'provinces.id', 'licenses.created_location')
             ->select(
@@ -62,7 +63,7 @@ class LicenseController extends Controller
                 'licenses.fee',
                 'licenses.status',
                 'licenses.created_at',
-                'users.name as ownerName',
+                'licenses.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($companyId, function ($query) use ($companyId) {
@@ -109,9 +110,9 @@ class LicenseController extends Controller
         $record->fee = $validated['fee'];
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->status = 1;
         $record->save();
 
@@ -143,10 +144,11 @@ class LicenseController extends Controller
 
     protected function view($id)
     {
-        $license = License::join('users', 'users.id', '=', 'licenses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'licenses.created_department')
-            ->select(
+        $license = License::
+            // join('users', 'users.id', '=', 'licenses.created_by')
+            // join('provinces', 'provinces.id', '=', 'licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'licenses.created_department')
+            select(
                 'licenses.id',
                 'licenses.license_type',
                 'licenses.issue_date',
@@ -156,9 +158,9 @@ class LicenseController extends Controller
                 'licenses.fee',
                 'licenses.status',
                 'licenses.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'licenses.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
             )
             ->where('licenses.id', $id)
             ->firstOrFail();

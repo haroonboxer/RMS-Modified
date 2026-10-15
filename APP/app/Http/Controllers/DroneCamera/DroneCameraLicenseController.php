@@ -38,10 +38,10 @@ class DroneCameraLicenseController extends Controller
         $personnelId = $request->filled('personnel_id') ? decode_id($request->personnel_id) : null;
 
         $query = DroneCameraLicense::query()
-            ->join('users', 'users.id', 'drone_camera_licenses.created_by')
+            // ->join('users', 'users.id', 'drone_camera_licenses.created_by')
             ->join('departments', 'departments.id', 'drone_camera_licenses.created_department')
             ->join('provinces', 'provinces.id', 'drone_camera_licenses.created_location')
-            ->select('drone_camera_licenses.*', 'users.name as ownerName')
+            ->select('drone_camera_licenses.*', 'drone_camera_licenses.created_by_name as ownerName')
             ->orderBy($sortField, $sortOrder);
 
         if ($companyId) {
@@ -102,8 +102,9 @@ class DroneCameraLicenseController extends Controller
         $record->company_id = $company_id;
         $record->personnel_id = $personnel_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->craeted_by_name = username();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -142,8 +143,9 @@ class DroneCameraLicenseController extends Controller
 
     protected function view($id)
     {
-        $license = DroneCameraLicense::join('users', 'users.id', '=', 'drone_camera_licenses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'drone_camera_licenses.created_location')
+        $license = DroneCameraLicense::
+            //join('users', 'users.id', '=', 'drone_camera_licenses.created_by')
+            join('provinces', 'provinces.id', '=', 'drone_camera_licenses.created_location')
             ->join('departments', 'departments.id', '=', 'drone_camera_licenses.created_department')
             ->select(
                 'drone_camera_licenses.id',
@@ -157,9 +159,9 @@ class DroneCameraLicenseController extends Controller
                 'drone_camera_licenses.bank_account_number',
                 'drone_camera_licenses.status',
                 'drone_camera_licenses.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'drone_camera_licenses.created_by_name as ownerName',
+                //'provinces.name_dr as createdLocation',
+                //'departments.name_da as createdDepartment',
             )
             ->where('drone_camera_licenses.id', $id)
             ->firstOrFail();

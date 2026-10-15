@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class AssistantController extends Controller
 {
+    protected $user;
     public function __construct()
     {
         $this->middleware('permission:workshop-assistant-list')->only('index');
@@ -118,8 +119,9 @@ class AssistantController extends Controller
                 'current_village' => $request->current_village,
                 'company_id' => $company_id,
                 'created_by' => userid(),
-                'created_department' => departmentId(),
-                'created_location' => locationId(),
+                'created_by_name' => userName(),
+                'created_department' => creatordepartmentId(),
+                'created_location' => ProvinceId(),
             ]);
 
             $parent_id = $record->id;
@@ -154,20 +156,21 @@ class AssistantController extends Controller
     protected function view($id)
     {
 
-        $assistant = WorkshopAssistant::join('users', 'users.id', '=', 'workshop_assistants.created_by')
-            ->join('provinces', 'provinces.id', '=', 'workshop_assistants.created_location')
-            ->join('departments', 'departments.id', '=', 'workshop_assistants.created_department')
+        $assistant = WorkshopAssistant::
+            // join('users', 'users.id', '=', 'workshop_assistants.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'workshop_assistants.created_location')
+            // ->join('departments', 'departments.id', '=', 'workshop_assistants.created_department')
             // Casted joins to handle string-vs-bigint mismatch in PostgreSQL
-            ->leftJoin('provinces as main_province', DB::raw('main_province.id::text'), '=', 'workshop_assistants.main_province')
+            leftJoin('provinces as main_province', DB::raw('main_province.id::text'), '=', 'workshop_assistants.main_province')
             ->leftJoin('districts as main_district', DB::raw('main_district.id::text'), '=', 'workshop_assistants.main_district')
             ->leftJoin('provinces as current_province', DB::raw('current_province.id::text'), '=', 'workshop_assistants.current_province')
             ->leftJoin('districts as current_district', DB::raw('current_district.id::text'), '=', 'workshop_assistants.current_district')
 
             ->select(
                 'workshop_assistants.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'workshop_assistants.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',
@@ -227,6 +230,7 @@ class AssistantController extends Controller
                         $attRecord->form_code = 'frm-w3';
                         $attRecord->path_name = $path;
                         $attRecord->created_by = userid();
+
                         $attRecord->save();
                     }
                 }

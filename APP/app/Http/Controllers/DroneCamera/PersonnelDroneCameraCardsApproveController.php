@@ -28,11 +28,11 @@ class PersonnelDroneCameraCardsApproveController extends Controller
 
         $query = DB::table('drone_camera_licenses')
             ->leftJoin('personnel_drone_cameras', 'personnel_drone_cameras.id', '=', 'drone_camera_licenses.personnel_id')
-            ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
+            //->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
             ->select(
                 'drone_camera_licenses.*',
                 DB::raw("CONCAT(personnel_drone_cameras.name_dr,' ',personnel_drone_cameras.last_name_dr) as name_dr"),
-                'users.name as ownerName'
+                'drone_camera_licenses.created_by_name as ownerName'
             )
             ->whereIn('drone_camera_licenses.status', [1, 2, 3])
             ->where('drone_camera_licenses.printed', 0)
@@ -57,7 +57,7 @@ class PersonnelDroneCameraCardsApproveController extends Controller
     {
         $data = DB::table('drone_camera_licenses')
             ->leftJoin('personnel_drone_cameras', 'drone_camera_licenses.personnel_id', '=', 'personnel_drone_cameras.id')
-            ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
+            //->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
             ->select(
                 'drone_camera_licenses.*',
                 'personnel_drone_cameras.name_dr',
@@ -65,7 +65,7 @@ class PersonnelDroneCameraCardsApproveController extends Controller
                 'personnel_drone_cameras.name_en',
                 'personnel_drone_cameras.last_name_en',
                 'personnel_drone_cameras.photo',
-                'users.name as ownerName'
+                'drone_camera_licenses.created_by_name as ownerName'
             )
             ->where('drone_camera_licenses.id', $id)
             ->first();

@@ -99,8 +99,9 @@ class WorkshopLicenseController extends Controller
         $record->bank_account_number = $validated['bank_account_number'];
         $record->company_id = (int) $company_id;
         $record->created_by = userid();
-        $record->created_department = departmentId();
-        $record->created_location = locationId();
+        $record->created_by_name = userName();
+        $record->created_department = creatordepartmentId();
+        $record->created_location = ProvinceId();
         $record->save();
 
         $parent_id = $record->id;
@@ -140,10 +141,11 @@ class WorkshopLicenseController extends Controller
     protected function view($id)
     {
 
-        $license = WorkshopLicense::join('users', 'users.id', '=', 'workshop_licenses.created_by')
-            ->join('provinces', 'provinces.id', '=', 'workshop_licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'workshop_licenses.created_department')
-            ->select(
+        $license = WorkshopLicense::
+            // join('users', 'users.id', '=', 'workshop_licenses.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'workshop_licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'workshop_licenses.created_department')
+            select(
                 'workshop_licenses.id',
                 'workshop_licenses.license_type',
                 'workshop_licenses.issue_date',
@@ -153,9 +155,9 @@ class WorkshopLicenseController extends Controller
                 'workshop_licenses.bank_account_number',
                 'workshop_licenses.status',
                 'workshop_licenses.created_at',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'workshop_licenses.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
             )
             ->where('workshop_licenses.id', $id)
             ->firstOrFail();

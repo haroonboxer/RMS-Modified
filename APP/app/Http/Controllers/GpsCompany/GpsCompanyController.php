@@ -15,18 +15,18 @@ use Illuminate\Support\Facades\Storage;
 class GpsCompanyController extends Controller
 {
     protected $user;
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:workshop-company-list')->only('index');
-    //     $this->middleware('permission:workshop-company-create')->only('store');
-    //     $this->middleware('permission:workshop-company-view')->only('view');
-    //     $this->middleware('permission:workshop-company-edit')->only('update');
-    //     $this->middleware('permission:workshop-company-status')->only('changeStatus');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:workshop-company-list')->only('index');
+        $this->middleware('permission:workshop-company-create')->only('store');
+        $this->middleware('permission:workshop-company-view')->only('view');
+        $this->middleware('permission:workshop-company-edit')->only('update');
+        $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected array $sortFields = [
         'gps_companies.id',
@@ -43,8 +43,9 @@ class GpsCompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-        $query = GpsCompany::join('users', 'users.id', 'gps_companies.created_by')
-            ->select(
+        $query = GpsCompany::
+            // join('users', 'users.id', 'gps_companies.created_by')
+            select(
                 'gps_companies.id',
                 'gps_companies.company_pa',
                 'gps_companies.company_dr',
@@ -55,7 +56,7 @@ class GpsCompanyController extends Controller
                 'gps_companies.created_by',
                 'gps_companies.created_at',
                 'gps_companies.tin',
-                'users.name as ownerName',
+                'gps_companies.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($request->status == 'rejected', function ($query) {
@@ -100,8 +101,9 @@ class GpsCompanyController extends Controller
             $company->tin = $request->tin;
             $company->icon = $iconPath;
             $company->created_by = userid();
-            $company->created_department = departmentId();
-            $company->created_location = locationId();
+            $company->created_by_name = userName();
+            $company->created_department = creatordepartmentId();
+            $company->created_location = ProvinceId();
             $company->created_at = now();
             $company->save();
             $parent_id = $company->id;
@@ -142,8 +144,9 @@ class GpsCompanyController extends Controller
             $id = decode_id($id);
         }
 
-        $record = GpsCompany::join('users', 'users.id', '=', 'gps_companies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'gps_companies.created_location')
+        $record = GpsCompany::
+            //   join('users', 'users.id', '=', 'gps_companies.created_by')
+            join('provinces', 'provinces.id', '=', 'gps_companies.created_location')
             ->join('departments', 'departments.id', '=', 'gps_companies.created_department')
             ->select(
                 'gps_companies.id',
@@ -156,9 +159,9 @@ class GpsCompanyController extends Controller
                 'gps_companies.status',
                 'gps_companies.reason_dismissed',
                 'gps_companies.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'gps_companies.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->find($id);
 

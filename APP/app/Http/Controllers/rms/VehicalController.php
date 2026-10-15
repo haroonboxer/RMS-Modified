@@ -29,8 +29,9 @@ class VehicalController extends Controller
 
     protected function index(Request $request)
     {
-        $records = Vehical::join('users', 'users.id', '=', 'vehicals.created_by')
-            ->select(
+        $records = Vehical::
+            // join('users', 'users.id', '=', 'vehicals.created_by')
+            select(
                 'vehicals.id',
                 'vehicals.vehical_type',
                 'vehicals.vehical_ownership',
@@ -42,7 +43,7 @@ class VehicalController extends Controller
                 'vehicals.license_end_date',
                 'vehicals.status',
                 'vehicals.created_at',
-                'users.name as ownerName'
+                'vehicals.created_by_name as ownerName'
             )
             ->when($request->filled('company_id'), function ($query) use ($request) {
                 return $query->where('vehicals.company_id', decode_id($request->company_id));
@@ -74,8 +75,9 @@ class VehicalController extends Controller
         $vehical->license_end_date = $request->license_end_date;
         $vehical->company_id = (int) $company_id;
         $vehical->created_by = userid();
-        $vehical->created_department = departmentId();
-        $vehical->created_location = locationId();
+        $vehical->created_by_name = userName();
+        $vehical->created_department = creatordepartmentId();
+        $vehical->created_location = ProvinceId();
         $vehical->save();
 
         $vehical_id = $vehical->id;
@@ -105,14 +107,15 @@ class VehicalController extends Controller
 
     protected function view($id)
     {
-        $vehical = Vehical::join('users', 'users.id', '=', 'vehicals.created_by')
-            ->join('provinces', 'provinces.id', '=', 'vehicals.created_location')
-            ->join('departments', 'departments.id', '=', 'vehicals.created_department')
-            ->select(
+        $vehical = Vehical::
+            // join('users', 'users.id', '=', 'vehicals.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'vehicals.created_location')
+            // ->join('departments', 'departments.id', '=', 'vehicals.created_department')
+            select(
                 'vehicals.*',
-                'users.name as ownerName',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
+                'vehicals.created_by_name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
             )
             ->where('vehicals.id', $id)
             ->firstOrFail();

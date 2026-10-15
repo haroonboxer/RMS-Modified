@@ -31,13 +31,13 @@ class DroneCameraCardPrintController extends Controller
             ->leftJoin('drone_camera_companies', 'drone_camera_licenses.company_id', '=', 'drone_camera_companies.id')
             ->leftJoin('drone_camera_bosses', 'drone_camera_bosses.company_id', '=', 'drone_camera_companies.id')
             ->leftJoin('drone_camera_assistants', 'drone_camera_assistants.company_id', '=', 'drone_camera_companies.id')
-            ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
             ->select(
                 'drone_camera_licenses.*',
                 'drone_camera_companies.company_dr as company_name_dr',
                 'drone_camera_bosses.name_dr as boss_name_dr',
                 'drone_camera_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName'
+                'drone_camera_licenses.created_by_name as ownerName'
             )
             ->whereIn('drone_camera_licenses.status', [1, 2, 3])
             ->whereIn('drone_camera_licenses.printed', [0])
@@ -103,9 +103,9 @@ class DroneCameraCardPrintController extends Controller
             ->leftJoin('districts as main_district', 'main_district.id', '=', 'personnel_drone_cameras.main_district')
             ->leftJoin('provinces as current_province', 'current_province.id', '=', 'personnel_drone_cameras.current_province')
             ->leftJoin('districts as current_district', 'current_district.id', '=', 'personnel_drone_cameras.current_district')
-            ->join('provinces', 'provinces.id', '=', 'drone_camera_licenses.created_location')
-            ->join('departments', 'departments.id', '=', 'drone_camera_licenses.created_department')
-            ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
+            // ->join('provinces', 'provinces.id', '=', 'drone_camera_licenses.created_location')
+            // ->join('departments', 'departments.id', '=', 'drone_camera_licenses.created_department')
+            // ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
             ->select(
                 'drone_camera_licenses.*',
                 'personnel_drone_cameras.*',
@@ -119,9 +119,9 @@ class DroneCameraCardPrintController extends Controller
                 'drone_camera_assistants.name_dr as assistant_name_dr',
                 'drone_camera_assistants.name_en as assistant_name_en',
                 'drone_camera_assistants.photo as assistant_photo',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment',
-                'users.name as ownerName',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment',
+                'drone_camera_licenses.created_by_name as ownerName',
                 'main_province.name_dr as mainProvince',
                 'main_district.district_dr as mainDistrict',
                 'current_province.name_dr as currentProvince',
@@ -142,7 +142,7 @@ class DroneCameraCardPrintController extends Controller
             ->leftJoin('drone_camera_companies', 'drone_camera_licenses.company_id', '=', 'drone_camera_companies.id')
             ->leftJoin('drone_camera_bosses', 'drone_camera_bosses.company_id', '=', 'drone_camera_companies.id')
             ->leftJoin('drone_camera_assistants', 'drone_camera_assistants.company_id', '=', 'drone_camera_companies.id')
-            ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'drone_camera_licenses.created_by', '=', 'users.id')
             ->select(
                 'drone_camera_licenses.*',
                 'drone_camera_companies.company_dr as company_name_dr',
@@ -159,7 +159,7 @@ class DroneCameraCardPrintController extends Controller
                 'drone_camera_assistants.last_name_en as assistant_last_name_en',
                 'drone_camera_assistants.name_en as assistant_name_en',
                 'drone_camera_assistants.photo as assistant_photo',
-                'users.name as ownerName'
+                'drone_camera_licenses.created_by_name as ownerName'
             )
             ->where('drone_camera_licenses.id', $id)
             ->first();

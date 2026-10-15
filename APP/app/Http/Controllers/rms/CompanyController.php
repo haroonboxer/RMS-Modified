@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
+    protected $user;
     public function __construct()
     {
         $this->middleware('permission:company-list')->only('index');
@@ -35,8 +36,9 @@ class CompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-        $query = Company::join('users', 'users.id', 'companies.created_by')
-            ->select(
+        $query = Company::
+            // join('users', 'users.id', 'companies.created_by')
+            select(
                 'companies.id',
                 'companies.company_pa',
                 'companies.company_dr',
@@ -51,7 +53,7 @@ class CompanyController extends Controller
                 'companies.status',
                 'companies.reason_dismissed',
                 'companies.created_at',
-                'users.name as ownerName',
+                'companies.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($request->company_dr != '', function ($query) use ($request) {
@@ -91,8 +93,9 @@ class CompanyController extends Controller
             $company->amount_of_money = $request->amount_of_money;
             $company->icon = $iconPath;
             $company->created_by = userid();
-            $company->created_department = departmentId();
-            $company->created_location = locationId();
+            $company->created_by_name = userName();
+            $company->created_department = creatordepartmentId();
+            $company->created_location = ProvinceId();
             $company->created_at = now();
             $company->save();
             $parent_id = $company->id;
@@ -132,10 +135,11 @@ class CompanyController extends Controller
             $id = decode_id($id);
         }
 
-        $record = Company::join('users', 'users.id', '=', 'companies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'companies.created_location')
-            ->join('departments', 'departments.id', '=', 'companies.created_department')
-            ->select(
+        $record = Company::
+            // join('users', 'users.id', '=', 'companies.created_by')
+            // ->join('provinces', 'provinces.id', '=', 'companies.created_location')
+            // ->join('departments', 'departments.id', '=', 'companies.created_department')
+            select(
                 'companies.id',
                 'companies.company_pa',
                 'companies.company_dr',
@@ -150,9 +154,9 @@ class CompanyController extends Controller
                 'companies.status',
                 'companies.reason_dismissed',
                 'companies.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'companies.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->find($id);
 

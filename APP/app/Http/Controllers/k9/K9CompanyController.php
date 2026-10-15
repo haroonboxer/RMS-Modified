@@ -43,8 +43,9 @@ class K9CompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-        $query = K9Company::join('users', 'users.id', 'k9_companies.created_by')
-            ->select(
+        $query = K9Company::
+            // join('users', 'users.id', 'k9_companies.created_by')
+            select(
                 'k9_companies.id',
                 'k9_companies.company_pa',
                 'k9_companies.company_dr',
@@ -54,7 +55,7 @@ class K9CompanyController extends Controller
                 'k9_companies.reason_dismissed',
                 'k9_companies.created_at',
                 'k9_companies.tin',
-                'users.name as ownerName',
+                'k9_companies.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($request->status == 'rejected', function ($query) {
@@ -96,8 +97,9 @@ class K9CompanyController extends Controller
             $company->tin = $request->tin;
             $company->icon = $iconPath;
             $company->created_by = userid();
-            $company->created_department = departmentId();
-            $company->created_location = locationId();
+            $company->created_by_name = userName();
+            $company->created_department = creatordepartmentId();
+            $company->created_location = ProvinceId();
             $company->created_at = now();
             $company->save();
             $parent_id = $company->id;
@@ -138,10 +140,11 @@ class K9CompanyController extends Controller
             $id = decode_id($id);
         }
 
-        $record = K9Company::join('users', 'users.id', '=', 'k9_companies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'k9_companies.created_location')
-            ->join('departments', 'departments.id', '=', 'k9_companies.created_department')
-            ->select(
+        $record = K9Company::
+            // join('users', 'users.id', '=', 'k9_companies.created_by')
+            // join('provinces', 'provinces.id', '=', 'k9_companies.created_location')
+            // ->join('departments', 'departments.id', '=', 'k9_companies.created_department')
+            select(
                 'k9_companies.id',
                 'k9_companies.company_pa',
                 'k9_companies.company_dr',
@@ -152,9 +155,9 @@ class K9CompanyController extends Controller
                 'k9_companies.status',
                 'k9_companies.reason_dismissed',
                 'k9_companies.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'k9_companies.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->find($id);
 

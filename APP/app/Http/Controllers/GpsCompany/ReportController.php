@@ -17,15 +17,15 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ReportController extends Controller
 {
-
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:system-report')->only('index');
-    //     $this->middleware(function ($request, $next) {
-    //         $this->user = Auth::guard('web')->user();
-    //         return $next($request);
-    //     });
-    // }
+    protected $user;
+    public function __construct()
+    {
+        $this->middleware('permission:system-report')->only('index');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
+    }
 
     protected function index(Request $request)
     {
@@ -140,14 +140,14 @@ class ReportController extends Controller
             ->leftJoin('gps_companies', 'gps_company_licenses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_bosses', 'gps_company_bosses.company_id', '=', 'gps_companies.id')
             ->leftJoin('gps_company_assistants', 'gps_company_assistants.company_id', '=', 'gps_companies.id')
-            ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
+            // ->leftJoin('users', 'gps_company_licenses.created_by', '=', 'users.id')
             ->select(
                 'gps_company_licenses.*',
                 'gps_company_licenses.license_type',
                 'gps_companies.company_dr as company_name_dr',
                 'gps_company_bosses.name_dr as boss_name_dr',
                 'gps_company_assistants.name_dr as assistant_name_dr',
-                'users.name as ownerName',
+                'gps_company_licenses.created_by_name as ownerName',
                 'gps_company_licenses.created_at'
             )
             ->where('gps_company_licenses.status', 2)

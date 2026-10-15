@@ -25,10 +25,39 @@ use Carbon\Carbon;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Hekmatinasser\Jalali\Jalali;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 function userid()
 {
-    return Auth::user()->id;
+    $user = Auth::guard('sso')->user();
+
+    $userId  = $user->id;
+    return  $userId;
+}
+function userName()
+{
+    $user = Auth::guard('sso')->user();
+    return $user->LName;
+}
+function creatordepartmentId()
+{
+    $user = Auth::guard('sso')->user();
+
+    $departmentId = $user->departmentId;
+    return $departmentId;
+    // return Auth::user()->department_id;
+}
+function departmentName()
+{
+    $user = Auth::guard('sso')->user();
+    $departmentName = $user->departmentName;
+    return $departmentName;
+}
+function ProvinceId()
+{
+    $user = Auth::guard("sso")->user();
+    return $user->ProvinceId;
 }
 
 function convertToEnglishDigits($string)

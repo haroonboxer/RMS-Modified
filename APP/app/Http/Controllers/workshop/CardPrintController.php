@@ -105,7 +105,7 @@ class CardPrintController extends Controller
 
     public function view($id)
     {
-        return "reached";
+       
         $data = DB::table('workshop_licenses')
             ->join('workshop_companies', 'workshop_licenses.company_id', '=', 'workshop_companies.id')
             ->join('workshop_bosses', 'workshop_bosses.company_id', '=', 'workshop_companies.id')

@@ -11,21 +11,22 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class DroneCameraCompanyController extends Controller
 {
     protected $user;
     public function __construct()
     {
-        // $this->middleware('permission:workshop-company-list')->only('index');
-        // $this->middleware('permission:workshop-company-create')->only('store');
-        // $this->middleware('permission:workshop-company-view')->only('view');
-        // $this->middleware('permission:workshop-company-edit')->only('update');
-        // $this->middleware('permission:workshop-company-status')->only('changeStatus');
-        // $this->middleware(function ($request, $next) {
-        //     $this->user = Auth::guard('web')->user();
-        //     return $next($request);
-        // });
+        $this->middleware('permission:workshop-company-list')->only('index');
+        $this->middleware('permission:workshop-company-create')->only('store');
+        $this->middleware('permission:workshop-company-view')->only('view');
+        $this->middleware('permission:workshop-company-edit')->only('update');
+        $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('web')->user();
+            return $next($request);
+        });
     }
 
     protected array $sortFields = [
@@ -42,8 +43,9 @@ class DroneCameraCompanyController extends Controller
         $sortFieldInput = $request->input('sort_field', self::DEFAULT_SORT_FIELD);
         $sortField = in_array($sortFieldInput, $this->sortFields) ? $sortFieldInput : self::DEFAULT_SORT_FIELD;
         $sortOrder = $request->input('sort_order', self::DEFAULT_SORT_ORDER);
-        $query = DroneCameraCompany::join('users', 'users.id', 'drone_camera_companies.created_by')
-            ->select(
+        $query = DroneCameraCompany::
+            // join('users', 'users.id', 'drone_camera_companies.created_by')->
+            select(
                 'drone_camera_companies.id',
                 'drone_camera_companies.company_pa',
                 'drone_camera_companies.company_dr',
@@ -53,7 +55,7 @@ class DroneCameraCompanyController extends Controller
                 'drone_camera_companies.reason_dismissed',
                 'drone_camera_companies.created_at',
                 'drone_camera_companies.tin',
-                'users.name as ownerName',
+                'drone_camera_companies.created_by_name as ownerName',
             )
             ->orderBy($sortField, $sortOrder)
             ->when($request->status == 'rejected', function ($query) {
@@ -97,8 +99,9 @@ class DroneCameraCompanyController extends Controller
             $company->tin = $request->tin;
             $company->icon = $iconPath;
             $company->created_by = userid();
-            $company->created_department = departmentId();
-            $company->created_location = locationId();
+            $company->created_by_name = username();
+            $company->created_department = creatordepartmentId();
+            $company->created_location = ProvinceId();
             $company->created_at = now();
             $company->save();
             $parent_id = $company->id;
@@ -139,8 +142,9 @@ class DroneCameraCompanyController extends Controller
             $id = decode_id($id);
         }
 
-        $record = DroneCameraCompany::join('users', 'users.id', '=', 'drone_camera_companies.created_by')
-            ->join('provinces', 'provinces.id', '=', 'drone_camera_companies.created_location')
+        $record = DroneCameraCompany::
+            //join('users', 'users.id', '=', 'drone_camera_companies.created_by')
+            join('provinces', 'provinces.id', '=', 'drone_camera_companies.created_location')
             ->join('departments', 'departments.id', '=', 'drone_camera_companies.created_department')
             ->select(
                 'drone_camera_companies.id',
@@ -153,9 +157,9 @@ class DroneCameraCompanyController extends Controller
                 'drone_camera_companies.status',
                 'drone_camera_companies.reason_dismissed',
                 'drone_camera_companies.created_at',
-                'users.name as createdBy',
-                'provinces.name_dr as createdLocation',
-                'departments.name_da as createdDepartment'
+                'drone_camera_companies.created_by_name as createdBy',
+                // 'provinces.name_dr as createdLocation',
+                // 'departments.name_da as createdDepartment'
             )
             ->find($id);
 
