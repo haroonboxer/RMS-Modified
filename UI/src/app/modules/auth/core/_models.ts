@@ -35,6 +35,7 @@ export interface UserModel {
   role: string[]
   permissions: string[]
   systems: string[]
+  currentProject:string
 }
 
 export class UserModel {

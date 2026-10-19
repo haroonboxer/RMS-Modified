@@ -38,10 +38,38 @@ const DashboardWrapper: FC = () => {
   const {currentUser} = useAuth()
   const {t} = useTranslation()
   const navigate = useNavigate()
-    console.log(currentUser);
-  useEffect(() => {
+  console.log(currentUser);
+  useEffect(() => 
+    {
+            const project = currentUser?.currentProject?.trim()
 
-     navigate('/workshop/list')
+      if (
+        project ===
+        "سیستم مدیریت جواز فعالیت شرکت های نصب اله ردیاب"
+      ) {
+        navigate('/gps-companies/list', { replace: true })
+      }
+       
+
+ 
+     if (project ==="سیستم مدیریت جواز فعالیت ورکشاپ وسایط زرهی") 
+      {
+        navigate('/workshop/list', { replace: true })
+      }
+      if (project ==="مدیریت کمپنی های امنیتی(مشوره دهی)")
+      {
+        navigate('/company/list', { replace: true })
+      }
+       
+      
+      if (project ==="سیستم جواز فعالیت موسسات کرایه دهنده سکهای تعلیمی k9")
+      {
+           navigate('/k9/list', { replace: true })
+      }
+      if (project ==="سیستم مدیریت جواز فعالیت استفاده از کمره های پروازی(Drone Camera)")
+      {
+          navigate('/drone-camera/list', { replace: true })
+      }
   }, [navigate])
 
   return (
@@ -55,3 +83,4 @@ const DashboardWrapper: FC = () => {
 
 export default DashboardWrapper
  
+

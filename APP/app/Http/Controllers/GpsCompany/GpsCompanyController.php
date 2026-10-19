@@ -17,17 +17,18 @@ class GpsCompanyController extends Controller
     protected $user;
     public function __construct()
     {
-        $this->middleware('permission:workshop-company-list')->only('index');
-        $this->middleware('permission:workshop-company-create')->only('store');
-        $this->middleware('permission:workshop-company-view')->only('view');
-        $this->middleware('permission:workshop-company-edit')->only('update');
-        $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        $this->middleware('permission:gps-company-list')->only('index');
+        $this->middleware('permission:gps-company-create')->only('store');
+        $this->middleware('permission:gps-company-view')->only('view');
+        $this->middleware('permission:gps-company-edit')->only('update');
+        $this->middleware('permission:gps-company-status')->only('changeStatus');
+
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
+            $this->user = Auth::guard('sso')->user();
+
             return $next($request);
         });
     }
-
     protected array $sortFields = [
         'gps_companies.id',
         'gps_companies.company_dr',

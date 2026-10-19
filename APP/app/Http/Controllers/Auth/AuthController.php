@@ -86,8 +86,10 @@ class AuthController extends Controller
 
 
 
-            $redirectToReact = env('redirectoToReact');
-            // dd($redirectToReact);
+            $redirectToReact = env('REDIRECT_TO_REACT');
+
+
+
             return redirect($redirectToReact . "/auth/callback");
         } catch (Exception $ex) {
 
@@ -144,6 +146,15 @@ class AuthController extends Controller
             $projects = json_decode($projects, true);
         }
 
+        $currentProject = $decoded->CurrentProject;
+
+
+
+        if (!is_string($currentProject)) {
+
+            $currentProject = [];
+        }
+
         if (!is_array($projects)) {
             $projects = [];
         }
@@ -193,6 +204,9 @@ class AuthController extends Controller
 
             // Projects
             "projects" => $projects,
+
+            //current Project
+            "currentProject" => $currentProject,
 
             // JWT
             "iat" => time(),

@@ -9,10 +9,12 @@ const CompanyList = () => {
   const {t} = useTranslation()
   const [showModal, setShowModal] = useState<boolean>(false)
   const {hasPermission} = useAuth()
+  const {currentUser} = useAuth();
   const handleOpenModal = (event: React.MouseEvent) => {
     event.preventDefault()
     setShowModal(true)
   }
+  console.log(currentUser);
   const [refreshKey, setRefreshKey] = useState(0)
 
   return (

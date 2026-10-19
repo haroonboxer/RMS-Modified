@@ -14,7 +14,13 @@ const CompanyList = () => {
     setShowModal(true)
   }
   const [refreshKey, setRefreshKey] = useState(0)
-
+  const {currentUser} = useAuth()
+ console.log("GPS COMPANY PERMISSION DEBUG", {
+  userId: currentUser?.id,
+  permissions: currentUser?.permissions,
+  hasListPermission: hasPermission("gps-company-list"),
+ 
+});
   return (
     <Fragment>
       <div

@@ -16,10 +16,11 @@ class PersonnelDroneCameraController extends Controller
     protected $user;
     public function __construct()
     {
-        $this->middleware('permission:workshop-boss-list')->only('index');
-        $this->middleware('permission:workshop-boss-create')->only('store');
-        $this->middleware('permission:workshop-boss-view')->only('view');
-        $this->middleware('permission:workshop-boss-edit')->only('edit');
+
+        $this->middleware('permission:drone-boss-list')->only('index');
+        $this->middleware('permission:drone-boss-create')->only('store');
+        $this->middleware('permission:drone-boss-view')->only('view');
+        $this->middleware('permission:drone-boss-edit')->only(['edit', 'update']);
         $this->middleware(function ($request, $next) {
             $this->user = Auth::guard('web')->user();
             return $next($request);

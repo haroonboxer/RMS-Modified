@@ -24,7 +24,7 @@ class K9CompanyController extends Controller
         $this->middleware('permission:k9-company-view')->only('view');
         $this->middleware('permission:k9-company-edit')->only('update');
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('web')->user();
+            $this->user = Auth::guard('sso')->user();
             return $next($request);
         });
     }

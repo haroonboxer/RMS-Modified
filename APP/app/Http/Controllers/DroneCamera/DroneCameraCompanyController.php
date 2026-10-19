@@ -18,11 +18,11 @@ class DroneCameraCompanyController extends Controller
     protected $user;
     public function __construct()
     {
-        $this->middleware('permission:workshop-company-list')->only('index');
-        $this->middleware('permission:workshop-company-create')->only('store');
-        $this->middleware('permission:workshop-company-view')->only('view');
-        $this->middleware('permission:workshop-company-edit')->only('update');
-        $this->middleware('permission:workshop-company-status')->only('changeStatus');
+        $this->middleware('permission:drone-company-list')->only('index');
+        $this->middleware('permission:drone-company-create')->only('store');
+        $this->middleware('permission:drone-company-edit')->only('view');
+        $this->middleware('permission:drone-company-view')->only('update');
+        $this->middleware('permission:drone-company-status')->only('changeStatus');
         $this->middleware(function ($request, $next) {
             $this->user = Auth::guard('web')->user();
             return $next($request);

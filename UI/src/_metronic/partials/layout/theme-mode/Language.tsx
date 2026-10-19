@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import {toAbsoluteUrl} from '../../../helpers'
 import {setLanguage, useLang} from '../../../i18n/Metronici18n'
 import {useTranslation} from 'react-i18next'
-
+import {useAuth} from '../../../../app/modules/auth'
 /* eslint-disable jsx-a11y/anchor-is-valid */
 type Props = {
   toggleBtnClass?: string
@@ -12,6 +12,8 @@ type Props = {
 }
 
 const Language = ({
+ 
+
   toggleBtnClass = '',
   menuPlacement = 'bottom-end',
   menuTrigger = "{default: 'click', lg: 'hover'}",
@@ -56,10 +58,15 @@ const Language = ({
   }
 
   const currentLanguage = languages.find((x) => x.lang === i18n.language)
-
+ const { currentUser } = useAuth();
+  // const projectOptions = (currentUser?.projects ?? []).map((project) => ({
+  //   value: project.ids,
+  //   label: project.Name,
+  // }))
   return (
     <>
       {/* begin::Menu toggle */}
+        
       <a
         href='#'
         className={clsx('btn btn-icon ', toggleBtnClass)}
@@ -80,7 +87,7 @@ const Language = ({
           </span>
         </span>
       </a>
-
+    
       {/* begin::Menu toggle */}
 
       {/* begin::Menu */}
@@ -109,6 +116,11 @@ const Language = ({
         ))}
         {/* end::Menu item */}
       </div>
+     
+      <select className='form-select'>
+          <option value={0}>Hola</option>
+      </select>
+       <div><button className="btn btn-dark">back</button></div>
       {/* end::Menu */}
     </>
   )
