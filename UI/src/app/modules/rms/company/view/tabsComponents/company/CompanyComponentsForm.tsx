@@ -1,4 +1,6 @@
 import CustomModal from 'app/customes/CustomModal'
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const CompanyComponentsForm = ({
   t,
@@ -10,6 +12,51 @@ const CompanyComponentsForm = ({
   isModalOpen,
   closeModal,
 }: any) => {
+  const Department = companyData?.record?.created_department;
+  const ProvinceId = companyData?.record?.created_location;
+
+const [userDepartment, setUserDepartment] = useState<any>(null);
+
+const [UserProvince,setuserProvince] = useState<any>(null);
+  useEffect(() => {
+  if (!Department) return
+
+  const loadUserDepartment = async () => {
+    try {
+      const response = await axios.get('https://localhost:7161/api/HandlerAPIRequest/LoadUserDepartment'
+      ,{
+          params: { Id: Department },
+        }
+      )
+
+      console.log('User department:', response.data)
+      setUserDepartment(response.data)
+    }
+     catch (error) 
+     {
+      console.error('Failed to load user department:', error)
+    }
+  }
+   const loadUserProvince = async () => {
+    try {
+      const response = await axios.get('https://localhost:7161/api/HandlerAPIRequest/LoadUserProvince'
+      ,{
+          params: { Id: ProvinceId },
+        }
+      )
+      setuserProvince(response.data);
+      console.log('User Province:', response.data)
+      setUserDepartment(response.data)
+    }
+     catch (error) 
+     {
+      console.error('Failed to load user department:', error)
+    }
+  }
+
+  loadUserDepartment()
+  loadUserProvince()
+}, [Department])
   return (
     <div className='card' id='kt_profile_details_view'>
       <div className='card-header cursor-pointer'>
@@ -29,14 +76,14 @@ const CompanyComponentsForm = ({
           </button>
         </div>
       </div>
-
+ 
       <div className='card-body'>
         <RecordOwnerView
           title={t('global.recordOwner')}
           icon={'fa fa-user-plus'}
           ownerName={companyData.record.createdBy}
-          departmentName={companyData.record.createdDepartment}
-          province={companyData.record.createdLocation}
+          departmentName={userDepartment}
+          province={UserProvince}
           created_at={to_jalali(companyData.record.created_at, true)}
         />
         <div className='col-lg-12 row mt-6'>

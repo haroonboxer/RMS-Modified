@@ -12,6 +12,7 @@ const store = async (formData: any) => {
 
 const viewCompany = async (id: number, formData: any) => {
   const response = await axios.post(`api/company/view/${id}`, formData)
+  console.log(response);
   return response.data
 }
 

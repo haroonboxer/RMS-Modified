@@ -43,6 +43,7 @@ export interface CompanyView {
     amount_of_money: string
     reason_dismissed: string
     createdBy: string
+    createdBy_id:string
     createdLocation: string
     createdDepartment: string
     created_at: string
@@ -64,6 +65,7 @@ export const defaultCompanyView: CompanyView = {
     reason_dismissed: '',
     status: '0',
     createdBy: '',
+    createdBy_id:'',
     createdLocation: '',
     createdDepartment: '',
     created_at: '',

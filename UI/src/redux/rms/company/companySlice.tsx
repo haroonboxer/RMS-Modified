@@ -25,7 +25,9 @@ const initialState: CompanyState = {
 // Get company from server
 export const getCompany = createAsyncThunk('api/company/index', async (params: any, thunkAPI) => {
   try {
-    return await companyService.getCompany(params)
+    const data = await companyService.getCompany(params)
+    
+    return data;
   } catch (error: any) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||

@@ -42,6 +42,7 @@ const CompanyComponents = () => {
     })
   }, [id])
   useEffect(() => {
+    
     setCompanyData((setCompanyData) => ({ ...setCompanyData, ...companyView }))
   }, [companyView])
   let content: JSX.Element | null = null

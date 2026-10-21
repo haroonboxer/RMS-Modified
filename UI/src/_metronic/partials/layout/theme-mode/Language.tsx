@@ -58,14 +58,11 @@ const Language = ({
   }
 
   const currentLanguage = languages.find((x) => x.lang === i18n.language)
- const { currentUser } = useAuth();
-  // const projectOptions = (currentUser?.projects ?? []).map((project) => ({
-  //   value: project.ids,
-  //   label: project.Name,
-  // }))
+
+ 
   return (
     <>
-      {/* begin::Menu toggle */}
+      {/* begin::Menu toggle */}     
         
       <a
         href='#'
@@ -117,10 +114,7 @@ const Language = ({
         {/* end::Menu item */}
       </div>
      
-      <select className='form-select'>
-          <option value={0}>Hola</option>
-      </select>
-       <div><button className="btn btn-dark">back</button></div>
+        
       {/* end::Menu */}
     </>
   )

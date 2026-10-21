@@ -94,7 +94,7 @@ const DataTable: React.FC<any> = ({ headers, columns, onRecordsChange }) => {
 
   const memoizedData = useMemo(() => data, [data])
   const memoizedLoading = useMemo(() => loading, [loading])
-
+  console.log(  memoizedData);
   return (
     <div>
       {isAuthorized ? (
@@ -165,6 +165,7 @@ const DataTable: React.FC<any> = ({ headers, columns, onRecordsChange }) => {
               <tbody>
                 {!memoizedLoading &&
                   memoizedData.map((item, index) => (
+            
                     <tr key={index} className='fs-5'>
                       <td className='fw-bolder' style={{ width: '5%', textAlign: 'center' }}>
                         {item.id}
@@ -199,7 +200,7 @@ const DataTable: React.FC<any> = ({ headers, columns, onRecordsChange }) => {
                             borderRadius: '10px',
                             objectFit: 'contain',
                           }}
-                          onError={(e) => (e.currentTarget.src = '/default-icon.png')}
+                           onError={(e) => (e.currentTarget.src = '/media/images/ad.jpg')}
                         />
                       </td>
                       <td style={{ textAlign: 'center', width: '10%' }}>

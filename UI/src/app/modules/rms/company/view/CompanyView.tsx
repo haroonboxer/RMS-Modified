@@ -25,7 +25,7 @@ const CompanyView = () => {
     'vehical',
     'printedCard',
   ]
-
+   
   const tabs = [
     { key: 'company', icon: 'fas fa-building' },
     { key: 'contract', icon: 'fas fa-edit' },
@@ -39,9 +39,11 @@ const CompanyView = () => {
   ]
 
   const [activeTab, setActiveTab] = useState('company')
-
+      
+  
   const renderContent = () => {
     switch (activeTab) {
+
       case 'company':
         return <CompanyComponents />
       case 'contract':

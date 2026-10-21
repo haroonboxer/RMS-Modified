@@ -21,7 +21,7 @@ const WeaponViewPage = () => {
   const [contentType, setContentType] = useState('')
   const [modalId, setModalId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-
+  console.log("am i in the correct place");
   const openModal = (contentType = '', id?: number) => {
     setContentType(contentType)
     setModalId(id || null)

@@ -137,8 +137,8 @@ class CompanyController extends Controller
 
         $record = Company::
             // join('users', 'users.id', '=', 'companies.created_by')
-            // ->join('provinces', 'provinces.id', '=', 'companies.created_location')
-            // ->join('departments', 'departments.id', '=', 'companies.created_department')
+            // ->join('provinces', 'provinces.id', '=', 'companies.created_location'),
+            // ->join('departments', 'departments.id', '=', '..companies.created_depar'created_department'tment')
             select(
                 'companies.id',
                 'companies.company_pa',
@@ -155,6 +155,8 @@ class CompanyController extends Controller
                 'companies.reason_dismissed',
                 'companies.created_at',
                 'companies.created_by_name as createdBy',
+                'companies.created_location',
+                'companies.created_department'
                 // 'provinces.name_dr as createdLocation',
                 // 'departments.name_da as createdDepartment'
             )

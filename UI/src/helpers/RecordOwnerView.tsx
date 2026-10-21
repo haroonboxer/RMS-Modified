@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 const RecordOwnerView = (props: any) => {
   const { t } = useTranslation()
+  console.log(props);
   return (
     <div className='row background-f5 p-3'>
       <fieldset className='m-0 p-0 fieldSetBorder'>

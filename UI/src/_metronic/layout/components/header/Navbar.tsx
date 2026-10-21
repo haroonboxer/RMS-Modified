@@ -5,19 +5,70 @@ import HeaderUserMenu from '../../../partials/layout/header-menus/HeaderUserMenu
 import Language from '../../../partials/layout/theme-mode/Language'
 import {useAppSelector} from '../../../../redux/hooks'
 import {useAuth} from '../../../../app/modules/auth'
+import {useTranslation} from 'react-i18next'
 const itemClass = 'ms-1 ms-lg-3'
 const userAvatarClass = 'symbol-35px symbol-md-40px'
 const btnIconClass = 'svg-icon-1'
 const Navbar = () => {
   const {config} = useLayout()
   const {currentUser} = useAuth()
+   const {t} = useTranslation()
+  interface UserProjectModel {
+  Id: number
+  Name: string
+  ids: string
+}
+console.log(currentUser);
+    const handleProvinceSelect =async (e: React.ChangeEvent<HTMLSelectElement>)=>
+  {
+      const ssoUrl = process.env.REACT_APP_SSO_LIVE_SERVER_ADDRESS;
+      const value = e.target.value;
+      
+    window.location.href = `${ssoUrl}Project/JumpBetweenTheProject?projectid=${value}`;    
+  }
+ 
+  const handleRedirect =()=>
+  {
+         const ssoUrl = process.env.REACT_APP_SSO_LIVE_SERVER_ADDRESS;
+ 
+
+     window.location.href = `${ssoUrl}home/Index`;
+      //  window.location.href = "https://localhost:7161/home/Index";
+  }
 
   return (
     <div className='app-navbar flex-shrink-0'>
       <div className={clsx('app-navbar-item', itemClass)}>
         <Language toggleBtnClass={clsx('btn-sm btn-custom')} />
       </div>
+      {/* Home Button */}
+        <div className='app-navbar-item ms-3 ms-lg-4'>
+        <button className='btn btn-dark' onClick={handleRedirect}> {t('global.ToMainPage')} </button>
+      </div>
 
+      {/* PROJECT DROPDOWN */}
+       <div className='app-navbar-item ms-3 ms-lg-4'>
+        <select
+          onChange={handleProvinceSelect}
+          className="form-select form-select-sm form-select-solid"
+          style={{ minWidth: '200px' }}
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Select Project
+          </option>
+
+          {((currentUser as any)?.projects ?? []).map(
+            (project: any, index: number) => (
+              <option key={index} value={project.ids}>
+                {project.Name}
+              </option>
+            )
+          )}
+        </select>
+      </div>
+
+      
       <div className={clsx('app-navbar-item', itemClass)}>
         <div
           className={clsx('cursor-pointer symbol', userAvatarClass)}

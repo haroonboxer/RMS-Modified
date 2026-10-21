@@ -24,15 +24,18 @@ const CompanyComponents = () => {
     setContentType(contentType)
     setIsModalOpen(true)
   }
-
+  
   const closeModal = () => {
     setIsModalOpen(false)
     setContentType('')
   }
-
+   
   useEffect(() => {
     const formData = new FormData()
-    dispatch(viewCompanies({id, formData} as any)).then((res) => {
+
+    dispatch(viewCompanies({id, formData} as any))
+    .then((res) => 
+    {
       if (res.meta.requestStatus === 'fulfilled') {
         setLoader(false)
       }
@@ -41,6 +44,7 @@ const CompanyComponents = () => {
   }, [id])
   useEffect(() => {
     setCompanyData((setCompanyData) => ({...setCompanyData, ...companyView}))
+    console.log(companyData);
   }, [companyView])
   let content: JSX.Element | null = null
 
