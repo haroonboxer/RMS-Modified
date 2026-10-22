@@ -1,8 +1,56 @@
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 
 const RecordOwnerView = (props: any) => {
+ 
   const { t } = useTranslation()
-  console.log(props);
+   const Department = props?.created_department;
+  const ProvinceId = props?.created_location;
+
+const [userDepartment, setUserDepartment] = useState<any>(null);
+
+const [UserProvince,setuserProvince] = useState<any>(null);
+  useEffect(() => {
+    console.log(props);
+  if (!Department) return
+
+  const loadUserDepartment = async () => {
+    try {
+      const response = await axios.get('https://localhost:7161/api/HandlerAPIRequest/LoadUserDepartment'
+      ,{
+          params: { Id: Department },
+        }
+      )
+
+      console.log('User department:', response.data)
+      
+    }
+     catch (error) 
+     {
+      console.error('Failed to load user department:', error)
+    }
+  }
+   const loadUserProvince = async () => {
+    try {
+      const response = await axios.get('https://localhost:7161/api/HandlerAPIRequest/LoadUserProvince'
+      ,{
+          params: { Id: ProvinceId },
+        }
+      )
+      setuserProvince(response.data);
+      console.log('User Province:', response.data)
+       
+    }
+     catch (error) 
+     {
+      console.error('Failed to load user department:', error)
+    }
+  }
+
+  loadUserDepartment()
+  loadUserProvince()
+}, [Department])
   return (
     <div className='row background-f5 p-3'>
       <fieldset className='m-0 p-0 fieldSetBorder'>
@@ -19,14 +67,14 @@ const RecordOwnerView = (props: any) => {
               <label className='col-form-label label fs-4 fw-bold me-2'>
                 <i className='fa fa-user fs-4 text-primary me-1'></i> {t('global.departmentName')}:
               </label>
-              <span className='label fs-4'>{props.departmentName}</span>
+              <span className='label fs-4'>{userDepartment}</span>
             </div>
             <div className='col-lg-3 col-md-3 col-sm-6'>
               <label className='col-form-label label fs-4 fw-bold me-2'>
                 <i className='fa  fa-archway fs-4 fw-bold text-primary me-1'></i>
                 {t('global.recordLocation')}:
               </label>
-              <span className='fs-4'>{props.province}</span>
+              <span className='fs-4'>{UserProvince}</span>
             </div>
             <div className='col-lg-3 col-md-3 col-sm-6'>
               <label className='col-form-label label fs-4 fw-bold me-2'>

@@ -17,12 +17,12 @@ interface Props {
       date: string
     }>
   }
-  to_jalali: (date: string, withTime: boolean) => string
+  to_jalali: (date: string, withTime: boolean) => string 
   RecordOwnerView: React.ComponentType<{
     title: string
     ownerName: string
-    departmentName: string
-    province: string
+    created_department: string
+    created_location: string
     created_at: string
   }>
   closeModal: () => void
@@ -41,8 +41,9 @@ const WeaponViewForm = ({
   closeModal,
   isLoading = false,
 }: Props) => {
+  console.log(weaponData)
   const navigate = useNavigate()
-
+  
   return (
     <div className='card'>
       <div className='card-header'>
@@ -69,8 +70,8 @@ const WeaponViewForm = ({
         <RecordOwnerView
           title={t('global.recordOwner')}
           ownerName={weaponData.createdBy}
-          departmentName={weaponData.createdDepartment}
-          province={weaponData.createdLocation}
+        created_department={weaponData.created_department}
+          created_location={weaponData.created_location}
           created_at={to_jalali(weaponData.created_at, true)}
         />
 

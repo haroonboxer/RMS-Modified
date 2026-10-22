@@ -26,6 +26,7 @@ const changeStatus = async (formData: FormData) => {
 
 const view = async (id: number) => {
   const response = await axios.get(`api/weapon/view/${id}`)
+  console.log(response);
   return response.data
 }
 

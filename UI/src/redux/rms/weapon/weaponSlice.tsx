@@ -1,8 +1,4 @@
-// -- name: assistantSlice.tsx
-// -- date: 03-18-2025.
-// -- desc: Redux toolkit slice for the Assistant components.
-// -- author: Rahimullah Ibrahimi.
-// -- email: rahimullahibrahimi79@gmail.com
+ 
 
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 import type {PayloadAction} from '@reduxjs/toolkit'
@@ -81,7 +77,9 @@ export const changeStatus = createAsyncThunk(
 
 export const view = createAsyncThunk('api/weapon/view', async (id: number, thunkAPI) => {
   try {
-    return await weaponService.view(id)
+    const response = await weaponService.view(id)
+     
+    return response
   } catch (error: any) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||
